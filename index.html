@@ -63,6 +63,7 @@ svg{display:block;flex:none}
 .side{background:var(--bg);border-right:1px solid var(--line);padding-inline:16px}
 .brand{display:flex;align-items:center;gap:8px;height:52px;font-family:var(--brand);font-weight:700;font-size:22px;letter-spacing:.02em}
 .brand .grow{flex:1}
+.beta{display:inline-block;vertical-align:middle;margin-left:6px;padding:1px 6px;border-radius:999px;background:#e5484d;color:#fff;font:700 10px/1.5 system-ui,sans-serif;letter-spacing:.06em;transform:translateY(-1px)}
 .tags{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;gap:2px;padding-bottom:12px}
 .sec{font-size:12px;color:var(--ink2);letter-spacing:.05em;padding:14px 10px 4px}
 .tagbtn{display:flex;justify-content:space-between;align-items:center;gap:8px;width:100%;padding:7px 10px;border:0;background:none;border-radius:8px;text-align:left;cursor:pointer}
@@ -491,7 +492,7 @@ svg{display:block;flex:none}
   <aside class="pane side" id="side">
     <div class="brand">
       <button class="icon only-narrow" id="btnSideBack" type="button" aria-label="노트 목록으로"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
-      <span>글맛노트</span>
+      <span>글맛노트<span class="beta">BETA</span></span>
     </div>
     <nav class="tree" id="tree" aria-label="노트 목록"></nav>
     <div class="side-foot">
@@ -516,7 +517,7 @@ svg{display:block;flex:none}
   <section class="pane lst" id="lst">
     <header class="lst-head">
       <button class="icon" id="btnTags" type="button" aria-label="메뉴 열기"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
-      <span class="lst-brand">글맛노트</span>
+      <span class="lst-brand">글맛노트<span class="beta">BETA</span></span>
       <label class="search">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
         <input id="q" type="search" placeholder="글 검색" autocomplete="off" aria-label="글 검색">
@@ -641,11 +642,11 @@ svg{display:block;flex:none}
 </div>
 <div class="gate" id="gate">
   <div class="gate-box" id="splash">
-    <div class="auth-brand">글맛노트</div>
+    <div class="auth-brand">글맛노트<span class="beta">BETA</span></div>
     <p class="gate-text">불러오는 중…</p>
   </div>
   <form class="auth-card" id="authForm" novalidate hidden>
-    <div class="auth-brand">글맛노트</div>
+    <div class="auth-brand">글맛노트<span class="beta">BETA</span></div>
     <p class="auth-sub">같은 이메일로 로그인하면 PC, 휴대폰, 아이패드에서 같은 노트를 이어서 써요.</p>
     <div class="seg" role="tablist" aria-label="로그인 또는 회원가입">
       <button type="button" role="tab" id="tabIn" aria-selected="true">로그인</button>
@@ -673,7 +674,7 @@ svg{display:block;flex:none}
     <p class="gate-note">다른 기기와 동기화되지 않아요. 나중에 로그인하면 쓴 노트를 계정으로 옮길 수 있어요.</p>
   </form>
   <div class="gate-box" id="gateFail" hidden>
-    <div class="auth-brand">글맛노트</div>
+    <div class="auth-brand">글맛노트<span class="beta">BETA</span></div>
     <p class="msg" id="failMsg" role="alert"></p>
     <button class="btn block" id="failRetry" type="button">다시 시도</button>
     <button class="btn alt block" id="failLocal" type="button">로그인 없이 이 기기에서만 쓰기</button>
