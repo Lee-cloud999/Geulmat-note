@@ -258,8 +258,12 @@ svg{display:block;flex:none}
 .notes>li[data-card] .note{height:100%;min-height:0;overflow:hidden}
 @media (max-width:520px){.notes>li[data-card]{height:200px}}
 .n-tags{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--accent)}
-.notes>.none,.notes>.tr-bar{grid-column:1/-1}
-.tr-item{background:var(--paper);border:1px solid var(--line);border-radius:14px;align-content:start}
+.notes>.none,.notes>.tr-bar{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.notes>li.tr-item{display:grid;grid-template-columns:minmax(0,1fr);background:var(--paper);border:1px solid var(--line);border-radius:14px;align-content:start;gap:6px;padding:12px 14px}
+.notes>li.tr-item .n-title{white-space:normal;padding:0;font-size:15px}
+.notes>li.tr-item .tr-btns{flex-wrap:wrap}
+.notes>li.tr-item .tr-btns .btn{white-space:nowrap}
+.notes>li.tr-item .tr-left{white-space:nowrap}
 .tr-item+.tr-item{border-top:1px solid var(--line)}
 .ed-bar{max-width:760px;width:100%;margin-inline:auto}
 @media (max-width:520px){
@@ -2074,12 +2078,16 @@ function maybeShowHint(){
   showHint(700);
 }
 function reloadTutorial(){
-  if(!window.confirm('"사용 안내" 글을 최신 내용으로 바꿔요.\n예전 안내 글은 휴지통으로 가고, 내가 쓴 글은 그대로예요. 계속할까요?'))return;
+  if(!window.confirm('"사용 안내" 글을 최신 내용으로 바꿔요.\n직접 고치지 않은 예전 안내 글은 바로 지우고, 고친 글은 휴지통으로 가요. 내가 쓴 글은 그대로예요. 계속할까요?'))return;
   var now=Date.now();
-  var olds=[];
+  var olds=[],gone=[];
   S.notes.forEach(function(n){
-    if(!n.deletedAt&&/^welcome-\d(-\w+)?$/.test(n.id)){n.deletedAt=now;n.updatedAt=now;olds.push(n.id);dirty.add(n.id)}
+    if(!n.deletedAt&&/^welcome-\d(-\w+)?$/.test(n.id)){
+      if(n.updatedAt===n.createdAt){gone.push(n.id)}
+      else{n.deletedAt=now;n.updatedAt=now;olds.push(n.id);dirty.add(n.id)}
+    }
   });
+  gone.forEach(removeNote);
   var sfx='-'+now.toString(36);
   var fresh=welcome();
   fresh.forEach(function(w){w.id=w.id+sfx;S.notes.push(w);dirty.add(w.id)});
