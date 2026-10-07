@@ -198,6 +198,10 @@ svg{display:block;flex:none}
 .foot-note{min-height:1.4em;overflow-wrap:anywhere}
 .btn.ghost{background:none;color:var(--ink);border:1px solid var(--line)}
 .btn.ghost:hover:not(:disabled){background:var(--soft)}
+.btn.alt{background:var(--soft);color:var(--accent);border:2px solid var(--accent);font-weight:700;font-size:15px;height:48px}
+.btn.alt:hover:not(:disabled){background:var(--accent);color:var(--on-accent)}
+.or{display:flex;align-items:center;gap:10px;margin:2px 0;color:var(--ink2);font-size:12px}
+.or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
 .gate-note{margin:0;text-align:center;font-size:12px;color:var(--ink2)}
 .move{display:grid;gap:10px;margin:0 0 8px;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--paper);font-size:13px}
 .move p{margin:0}
@@ -318,14 +322,15 @@ svg{display:block;flex:none}
     <p class="msg" id="authMsg" role="alert"></p>
     <button class="btn block" id="authGo" type="submit">로그인</button>
     <button class="textbtn" id="authReset" type="button">비밀번호를 잊었어요</button>
-    <button class="btn ghost block" id="authLocal" type="button">로그인 없이 이 기기에서만 쓰기</button>
+    <div class="or">또는</div>
+    <button class="btn alt block" id="authLocal" type="button">로그인 없이 이 기기에서만 쓰기</button>
     <p class="gate-note">다른 기기와 동기화되지 않아요. 나중에 로그인하면 쓴 노트를 계정으로 옮길 수 있어요.</p>
   </form>
   <div class="gate-box" id="gateFail" hidden>
     <div class="auth-brand">글맛노트</div>
     <p class="msg" id="failMsg" role="alert"></p>
     <button class="btn block" id="failRetry" type="button">다시 시도</button>
-    <button class="btn ghost block" id="failLocal" type="button">로그인 없이 이 기기에서만 쓰기</button>
+    <button class="btn alt block" id="failLocal" type="button">로그인 없이 이 기기에서만 쓰기</button>
   </div>
 </div>
 
