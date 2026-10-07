@@ -1277,7 +1277,7 @@ function flushAllNow(){
 function saveSettings(){
   if(cloudReady()){
     try{
-      Promise.resolve(backend.saveSettings(S.user.uid,{size:S.settings.size,defaultFont:S.settings.defaultFont,seeded:!!S.settings.seeded,books:S.settings.books||[]}))
+      Promise.resolve(backend.saveSettings(S.user.uid,(function(){var o={size:S.settings.size,defaultFont:S.settings.defaultFont,seeded:!!S.settings.seeded};if(S.booksDirty||(S.settings.books||[]).length)o.books=S.settings.books||[];return o})()))
         .catch(onWriteError);
     }catch(e){onWriteError(e)}
   }else saveLocal();
@@ -1361,7 +1361,8 @@ function startSession(u){
   endSession();
   timers.forEach(function(t){clearTimeout(t)});timers.clear();dirty.clear();
   S.user=u;S.mode='cloud';S.notes=[];S.activeId=null;S.tag=null;S.q='';$('q').value='';
-  S.settings={size:18,defaultFont:'gowun-batang',seeded:false};
+  S.settings={size:18,defaultFont:'gowun-batang',seeded:false,books:[]};
+  S.book=null;S.treeOpen={};S.booksDirty=false;
   S.pending=false;S.serverNotes=false;S.serverSettings=false;S.serverEmpty=false;S.seedDone=false;S.moveAsked=false;S.err=null;$('movePanel').hidden=true;
   S.view='list';
   showGate(null);
@@ -1386,7 +1387,7 @@ function localChoice(){try{return localStorage.getItem(CHOICE_KEY)==='local'}cat
 function setLocalChoice(on){try{if(on)localStorage.setItem(CHOICE_KEY,'local');else localStorage.removeItem(CHOICE_KEY)}catch(e){}}
 function cloudConfigured(){var c=window.GULMAT_FIREBASE;return !!(window.__gulmatBackend||(c&&c.apiKey&&c.projectId))}
 function goLocal(){
-  S.mode='local';S.user=null;loadLocal();purgeTrash();
+  S.mode='local';S.user=null;S.book=null;S.treeOpen={};loadLocal();purgeTrash();
   S.activeId=null;S.tag=null;S.q='';$('q').value='';
   ensureActive();renderAll();loadEditor();showGate(null);
 }
@@ -1425,7 +1426,7 @@ function moveLocal(){
   try{
     var ld=JSON.parse(localStorage.getItem(KEY)),nbk=0;
     if(ld&&ld.settings&&Array.isArray(ld.settings.books))ld.settings.books.forEach(function(x){var k=sanitizeBook(x);if(k&&!bookById(k.id)){books().push(k);nbk++}});
-    if(nbk)saveSettings();
+    if(nbk){S.booksDirty=true;saveSettings()}
   }catch(e){}
   var sig=new Set(),taken=new Set(),t0=Date.now(),ps=[],added=0;
   S.notes.forEach(function(n){taken.add(n.id);sig.add((n.title||'')+'\u0000'+(n.body||''))});
@@ -1616,7 +1617,7 @@ function importBackup(file){
     if(Array.isArray(d.books)){
       var nb=0;
       d.books.slice(0,200).forEach(function(x){var k=sanitizeBook(x);if(k&&!bookById(k.id)){books().push(k);nb++}});
-      if(nb)saveSettings();
+      if(nb){S.booksDirty=true;saveSettings()}
     }
     d.notes.slice(0,5000).forEach(function(x){
       if(!x||typeof x!=='object'){skipped++;return}
@@ -1796,6 +1797,7 @@ function saveBookModal(){
     S.book=nb.id;S.tag=null;S.q='';$('q').value='';S.trash=false;S.view='list';S.activeId=null;
     S.treeOpen[nb.id]=true;
   }
+  S.booksDirty=true;
   saveSettings();
   closeBookModal();
   loadEditor();renderAll();
@@ -1809,6 +1811,7 @@ function deleteBook(){
   S.settings.books=books().filter(function(k){return k.id!==b.id});
   delete S.treeOpen[b.id];
   S.book=null;
+  S.booksDirty=true;
   saveSettings();
   renderAll();flash('노트를 지웠어요. 안의 글은 그대로 남아 있어요.');
 }
