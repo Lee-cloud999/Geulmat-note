@@ -306,7 +306,8 @@ svg{display:block;flex:none}
 .acct-pop[hidden]{display:none}
 .acct-pop b{color:var(--ink);font-weight:600;overflow-wrap:anywhere}
 .acct-pop .btn{width:100%;justify-content:center}
-.ptr{position:fixed;top:env(safe-area-inset-top,0px);left:50%;z-index:120;display:flex;align-items:center;gap:8px;margin-left:-70px;width:140px;justify-content:center;padding:7px 12px;border-radius:999px;background:var(--paper);color:var(--ink2);border:1px solid var(--line);box-shadow:0 4px 14px rgba(0,0,0,.12);font-size:12px;transform:translateY(-100%);pointer-events:none;transition:transform .15s}
+.ptr{position:fixed;top:env(safe-area-inset-top,0px);left:50%;z-index:120;display:flex;align-items:center;gap:8px;margin-left:-70px;width:140px;justify-content:center;padding:7px 12px;border-radius:999px;background:var(--paper);color:var(--ink2);border:1px solid var(--line);box-shadow:0 4px 14px rgba(0,0,0,.12);font-size:12px;transform:translateY(-100%);opacity:0;visibility:hidden;pointer-events:none;transition:transform .15s,opacity .15s}
+.ptr.show{opacity:1;visibility:visible}
 .ptr.ready{color:var(--accent);border-color:var(--accent)}
 .ins-btn{position:absolute;width:26px;display:grid;place-items:center;padding:0;border:1.5px dashed var(--line);border-radius:10px;background:none;color:var(--ink2);font-size:18px;line-height:1;cursor:pointer;opacity:.0;transition:opacity .12s,background .12s}
 .notes:hover .ins-btn{opacity:.55}
@@ -1573,6 +1574,7 @@ function startSession(u){
   unsubNotes=backend.subscribeNotes(u.uid,onRemote,onSubErr);
 }
 function handleAuth(u){
+  bootDone=true;
   if(localChoice())return;
   if(!u){
     endSession();
@@ -1902,6 +1904,7 @@ function showFail(msg){
   $('failMsg').textContent=msg;
   showGate('fail');
 }
+var bootDone=false;
 function boot(){
   var cfg=window.GULMAT_FIREBASE;
   var configured=!!(cfg&&cfg.apiKey&&cfg.projectId);
@@ -1910,13 +1913,20 @@ function boot(){
   if((!injected&&!configured)||localChoice()){goLocal();return}
   showGate('splash');
   var ready=injected?Promise.resolve():loadFirebase();
+  var dog=setTimeout(function(){
+    if(!bootDone){
+      showFail('연결이 오래 걸려요. 다른 창에서 글맛노트를 열어 두었다면 닫고 다시 시도해 주세요.');
+    }
+  },15000);
   ready.then(function(){
     backend=injected||firebaseBackend(cfg);
-    return backend.init();
+    /* persistence is optional: never let it hold up start-up */
+    return Promise.race([Promise.resolve(backend.init()),sleep(4000)]);
   }).then(function(){
     setupGoogleButton();
     backend.onAuth(handleAuth);
   }).catch(function(){
+    bootDone=true;
     backend=null;
     showFail('서버에 연결하지 못했어요. 인터넷 연결을 확인하고 다시 시도해 주세요.');
   });
@@ -2678,7 +2688,7 @@ if('serviceWorker' in navigator&&location.protocol!=='file:'){
     }
     return (document.scrollingElement&&document.scrollingElement.scrollTop>0);
   }
-  function reset(){st=null;if(pulling){pulling=false;ind.style.transform='translateY(-100%)';ind.classList.remove('ready')}}
+  function reset(){st=null;if(pulling){pulling=false;ind.style.transform='translateY(-100%)';ind.classList.remove('ready');ind.classList.remove('show')}}
   document.addEventListener('touchstart',function(e){
     if(busy||e.touches.length!==1){st=null;return}
     var t=e.target;
@@ -2692,7 +2702,7 @@ if('serviceWorker' in navigator&&location.protocol!=='file:'){
     var dx=e.touches[0].clientX-st.x,dy=e.touches[0].clientY-st.y;
     if(!pulling){
       if(dy<=12||Math.abs(dx)>dy){if(dy<-6||Math.abs(dx)>24)st=null;return}
-      pulling=true;
+      pulling=true;ind.classList.add('show');
     }
     if(e.cancelable)e.preventDefault();
     var d=Math.min(dy,TH*1.6);

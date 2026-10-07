@@ -1,7 +1,7 @@
 /* 글맛노트 서비스 워커
    앱 파일을 기기에 보관해 두었다가, 인터넷이 없어도 앱이 열리게 해요.
    노트 내용은 여기서 다루지 않아요. 노트는 Firebase가 기기와 서버에 따로 보관해요. */
-const VERSION = 'geulmat-v2';
+const VERSION = 'geulmat-v3';
 const SCOPE = self.registration.scope;
 const SHELL = ['./', 'index.html', 'firebase-config.js', 'manifest.webmanifest',
   'icon.svg', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'].map(p => new URL(p, SCOPE).href);
