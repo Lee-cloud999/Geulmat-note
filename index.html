@@ -315,6 +315,15 @@ svg{display:block;flex:none}
 .acct-pop[hidden]{display:none}
 .acct-pop b{color:var(--ink);font-weight:600;overflow-wrap:anywhere}
 .acct-pop .btn{width:100%;justify-content:center}
+.pop-head{text-align:left;padding-left:6px;display:grid;gap:2px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.pop-state{display:flex;align-items:center;gap:6px;font-size:12px}
+.pop-state::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.pop-state[data-state="busy"]::before,.pop-state[data-state="off"]::before{background:var(--ink2)}
+.pop-menu{display:grid;gap:0}
+.pop-menu .linkbtn{display:block;width:100%;padding:8px 6px;text-align:left;text-decoration:none;font-size:13px;color:var(--ink);border-radius:8px;box-sizing:border-box}
+.pop-menu .linkbtn[hidden]{display:none}
+.pop-menu .linkbtn:hover{background:var(--soft)}
+.pop-menu .linkbtn.danger{color:#c0392b}
 .dnd-hint{position:absolute;inset:0;margin:auto;height:fit-content;width:min(440px,calc(100vw - 32px));padding:22px 22px 18px;border-radius:24px;background:var(--paper);color:var(--ink);border:1px solid var(--line);box-shadow:0 24px 70px rgba(0,0,0,.3);text-align:center;font-size:14px;animation:dh-in .35s ease both}
 .dnd-wrap{position:fixed;inset:0;z-index:110;background:rgba(0,0,0,.28);animation:dh-fade .25s ease both}
 .dnd-wrap.out{animation:dh-fadeout .3s ease both}
@@ -497,23 +506,8 @@ svg{display:block;flex:none}
       <span>글맛노트<span class="beta" role="button" tabindex="0" title="시험 버전이에요. 눌러서 자세히 보기">BETA</span></span>
     </div>
     <nav class="tree" id="tree" aria-label="노트 목록"></nav>
-    <div class="side-foot">
-      <div class="acct" id="acct" hidden>
-        <div class="acct-mail" id="acctMail"></div>
-        <div class="acct-state" id="syncState" data-state="ok"></div>
-      </div>
-      <div class="foot-btns">
-        <button class="linkbtn" id="btnBackup" type="button">백업 받기</button>
-        <button class="linkbtn" id="btnRestore" type="button">백업 불러오기</button>
-        <button class="linkbtn" id="btnTutorial" type="button">튜토리얼 다시 불러오기</button>
-        <button class="linkbtn" id="btnGoCloud" type="button" hidden>로그인하고 동기화</button>
-        <button class="linkbtn" id="btnInstall" type="button" hidden>앱으로 설치</button>
-        <a class="linkbtn" id="btnFeedback" href="mailto:ggiyoo@gmail.com?subject=%EA%B8%80%EB%A7%9B%EB%85%B8%ED%8A%B8%20%EC%9D%98%EA%B2%AC">의견 보내기</a>
-        <button class="linkbtn" id="btnLic" type="button">글꼴 · 오픈소스 라이선스</button>
-        <button class="linkbtn" id="btnLogout" type="button" hidden>로그아웃</button>
-      </div>
+    <div class="side-foot" id="sideFoot" hidden>
       <div class="foot-note" id="store" role="status"></div>
-      <input id="fileIn" type="file" accept="application/json,.json" hidden>
     </div>
   </aside>
 
@@ -527,7 +521,18 @@ svg{display:block;flex:none}
       </label>
       <div class="acct-wrap">
         <button class="icon" id="btnAcct" type="button" aria-label="계정" aria-haspopup="true" aria-expanded="false"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 20c.8-3.6 3.7-5.6 7-5.6s6.2 2 7 5.6"/></svg></button>
-        <div class="acct-pop" id="acctPop" hidden></div>
+        <div class="acct-pop" id="acctPop" role="menu" aria-label="설정" hidden><div class="pop-head" id="popHead"></div>
+        <div class="pop-menu" id="popMenu">
+          <button class="linkbtn" id="btnBackup" type="button">백업 받기</button>
+          <button class="linkbtn" id="btnRestore" type="button">백업 불러오기</button>
+          <button class="linkbtn" id="btnTutorial" type="button">튜토리얼 다시 불러오기</button>
+          <button class="linkbtn" id="btnInstall" type="button" hidden>앱으로 설치</button>
+          <a class="linkbtn" id="btnFeedback" href="mailto:ggiyoo@gmail.com?subject=%EA%B8%80%EB%A7%9B%EB%85%B8%ED%8A%B8%20%EC%9D%98%EA%B2%AC">의견 보내기</a>
+          <button class="linkbtn" id="btnLic" type="button">글꼴 · 오픈소스 라이선스</button>
+          <button class="linkbtn" id="btnGoCloud" type="button" hidden>로그인하고 동기화</button>
+          <button class="linkbtn danger" id="btnLogout" type="button" hidden>로그아웃</button>
+        </div>
+        <input id="fileIn" type="file" accept="application/json,.json" hidden></div>
       </div>
       <button class="btn newbtn" id="btnNew" hidden style="display:none" type="button" aria-label="새 글"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg><span>새 글</span></button>
     </header>
@@ -1067,21 +1072,16 @@ function syncInfo(){
 }
 function renderAccount(){
   var cloud=S.mode==='cloud'&&!!S.user;
-  $('acct').hidden=!cloud;
   $('btnLogout').hidden=!cloud;
   if(cloud){
-    $('acctMail').textContent=S.user.email||'';
-    var si=syncInfo();
-    $('syncState').textContent=si.t;
-    $('syncState').dataset.state=si.s;
   }
   var note=S.flash;
   if(!note&&S.mode==='local'){
     if(S.localFail)note='저장 공간을 쓸 수 없어서 이 창을 닫으면 사라져요.';
-    else note=cloudConfigured()?'이 기기에만 저장돼요. 로그인하면 다른 기기와 동기화돼요.':'이 기기에만 저장돼요. 다른 기기와 동기화하려면 설정이 필요해요.';
   }
   $('btnGoCloud').hidden=!(S.mode==='local'&&cloudConfigured());
-  $('store').textContent=note||'';
+  $('store').textContent=note||'';$('sideFoot').hidden=!note;
+  if(!$('acctPop').hidden)renderAcctPop();
 }
 function flash(msg){
   S.flash=msg;renderAccount();
@@ -2037,14 +2037,10 @@ function deleteActive(){
   loadEditor();renderAll();
 }
 function renderAcctPop(){
-  var cloud=S.mode==='cloud'&&!!S.user,h='';
-  if(cloud){
-    var si=syncInfo();
-    h='<b>'+esc(S.user.email||'')+'</b><span>'+esc(si.t)+'</span><button type="button" class="btn" data-acct="logout">로그아웃</button>';
-  }else{
-    h='<span>이 기기에만 저장되고 있어요.</span>'+(cloudConfigured()?'<button type="button" class="btn" data-acct="login">로그인하고 동기화</button>':'');
-  }
-  $('acctPop').innerHTML=h;
+  var cloud=S.mode==='cloud'&&!!S.user,h;
+  if(cloud){var si=syncInfo();h='<b>'+esc(S.user.email||'')+'</b><span class="pop-state" data-state="'+esc(si.s)+'">'+esc(si.t)+'</span>'}
+  else h='<span>이 기기에만 저장되고 있어요.</span>';
+  $('popHead').innerHTML=h;
 }
 function closeAcct(){$('acctPop').hidden=true;$('btnAcct').setAttribute('aria-expanded','false')}
 $('btnAcct').addEventListener('click',function(e){
@@ -2054,9 +2050,7 @@ $('btnAcct').addEventListener('click',function(e){
   $('btnAcct').setAttribute('aria-expanded',open?'true':'false');
 });
 $('acctPop').addEventListener('click',function(e){
-  var b=e.target.closest('[data-acct]');if(!b)return;
-  closeAcct();
-  if(b.getAttribute('data-acct')==='logout')logout();else goCloud();
+  if(e.target.closest('.linkbtn'))closeAcct();
 });
 document.addEventListener('click',function(e){if(!$('acctPop').hidden&&!e.target.closest('.acct-wrap'))closeAcct()});
 document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!$('acctPop').hidden)closeAcct()});
