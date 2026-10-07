@@ -256,6 +256,7 @@ svg{display:block;flex:none}
 /* notebooks */
 .shelf{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:14px;padding:2px 0 18px}
 .cover{position:relative;display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;gap:6px;aspect-ratio:3/4;padding:14px 12px 12px 18px;border:0;border-radius:6px 14px 14px 6px;text-align:left;cursor:pointer;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.14),inset 6px 0 0 rgba(0,0,0,.14);transition:transform .12s,box-shadow .12s}
+.cover.sel{outline:3px solid var(--accent);outline-offset:2px}
 .cover:hover{transform:translateY(-3px);box-shadow:0 10px 22px rgba(0,0,0,.2),inset 6px 0 0 rgba(0,0,0,.14)}
 .cv-emoji{font-size:34px;line-height:1}
 .cv-title{position:absolute;left:18px;right:12px;top:47%;transform:translateY(-50%);font-family:var(--brand);font-weight:700;font-size:17px;line-height:1.3;overflow-wrap:anywhere;word-break:keep-all;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
@@ -783,18 +784,18 @@ function renderTrash(v){
 function renderShelf(){
   if(S.book&&!bookById(S.book))S.book=null;
   var flat=!!S.tag||!!S.q.trim();
-  var home=!S.book&&!S.trash&&!flat;
+  var home=!S.trash&&!flat;
   $('shelf').hidden=!home;
   var b=S.book&&!S.trash?bookById(S.book):null;
   $('bookBar').hidden=!b;
   if(home){
     $('shelf').innerHTML=books().map(function(k){
-      return '<button type="button" class="cover" draggable="true" data-book="'+esc(k.id)+'" style="'+coverStyle(k)+'"><span class="cv-emoji">'+esc(k.emoji)+'</span><span class="cv-title">'+esc(k.title||'새 노트')+'</span><span class="cv-cnt">글 '+bookCount(k.id)+'개</span></button>';
+      return '<button type="button" class="cover'+(S.book===k.id?' sel':'')+'" aria-pressed="'+(S.book===k.id)+'" draggable="true" data-book="'+esc(k.id)+'" style=""'+coverStyle(k)+'"><span class="cv-emoji">'+esc(k.emoji)+'</span><span class="cv-title">'+esc(k.title||'새 노트')+'</span><span class="cv-cnt">글 '+bookCount(k.id)+'개</span></button>';
     }).join('')+'<button type="button" class="cover add" data-newbook="1"><span class="plus">+</span><span>새 노트 만들기</span></button>';
   }
   if(b){
     $('bookBar').setAttribute('style',coverStyle(b));
-    $('bookBar').innerHTML='<button type="button" class="bb-back" data-bookhome="1" title="글을 여기로 끌어 놓으면 노트에서 빠져요">‹ 홈</button><span class="bb-emoji">'+esc(b.emoji)+'</span><span class="bb-title">'+esc(b.title||'새 노트')+'</span><span class="bb-btns"><button type="button" class="bb-btn" data-bookedit="1">커버 바꾸기</button><button type="button" class="bb-btn" data-bookdel="1">노트 지우기</button></span>';
+    $('bookBar').innerHTML='<button type="button" class="bb-back" data-bookhome="1" title="글을 여기로 끌어 놓으면 노트에서 빠져요">✕ 선택 해제</button><span class="bb-emoji">'+esc(b.emoji)+'</span><span class="bb-title">'+esc(b.title||'새 노트')+'</span><span class="bb-btns"><button type="button" class="bb-btn" data-bookedit="1">커버 바꾸기</button><button type="button" class="bb-btn" data-bookdel="1">노트 지우기</button></span>';
   }
 }
 function renderTree(){
@@ -2353,7 +2354,7 @@ document.addEventListener('contextmenu',function(e){
 });
 $('shelf').addEventListener('click',function(e){
   var b=e.target.closest('[data-book]');
-  if(b){openBook(b.getAttribute('data-book'));return}
+  if(b){var bid=b.getAttribute('data-book');if(S.book===bid)goHome();else openBook(bid);return}
   if(e.target.closest('[data-newbook]'))openBookModal(null);
 });
 $('bookBar').addEventListener('click',function(e){
