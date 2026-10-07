@@ -808,7 +808,7 @@ function renderTree(){
   }
   books().forEach(function(k){
     var open=!!S.treeOpen[k.id],list=open?cardsOf(k.id):null,cnt=bookCount(k.id);
-    out+='<div class="tr-row"><button type="button" class="tr-head" draggable="true" data-tbook="'+esc(k.id)+'" aria-expanded="'+open+'"><span class="tr-chev">▶</span><span class="tr-emoji" style="'+coverStyle(k)+'">'+esc(k.emoji)+'</span><span class="tr-name">'+esc(k.title||'새 노트')+'</span><span class="cnt">'+cnt+'</span></button><button type="button" class="tr-open" data-topen="'+esc(k.id)+'" aria-label="노트 열기">열기</button></div>';
+    out+='<div class="tr-row"><button type="button" class="tr-head" draggable="true" data-tbook="'+esc(k.id)+'" aria-expanded="'+open+'"><span class="tr-chev">▶</span><span class="tr-emoji" style="'+coverStyle(k)+'">'+esc(k.emoji)+'</span><span class="tr-name">'+esc(k.title||'새 노트')+'</span><span class="cnt">'+cnt+'</span></button></div>';
     if(open)out+=cardsHtml(list);
   });
   var loose=sortCards(liveNotes().filter(function(n){return !cardBookId(n)}));
