@@ -294,7 +294,9 @@ svg{display:block;flex:none}
 .notes>li.sec-head{display:flex;align-items:center;justify-content:space-between;grid-column:1/-1;list-style:none;margin:14px 0 2px;padding-top:12px;border-top:1px solid var(--line);font-size:13px;font-weight:700;color:var(--ink2)}
 .ed-card .ed-scroll{scrollbar-width:none;-ms-overflow-style:none}
 .ed-card .ed-scroll::-webkit-scrollbar{display:none;width:0;height:0}
-.notes>li.sec-head.drop-ok{outline:2px solid var(--accent);outline-offset:2px;border-radius:10px;background:var(--soft)}
+.notes>li.loose-zone{grid-column:1/-1;display:flex;align-items:center;justify-content:center;min-height:130px;border:2px dashed transparent;border-radius:14px;font-size:13px;color:transparent}
+.notes:has(.dragging) .loose-zone{border-color:var(--line);color:var(--ink2)}
+.notes>li.loose-zone.drop-ok{border-color:var(--accent);color:var(--accent);background:var(--soft)}
 .notes>li.sec-head{padding-block:12px 6px}
 .lst-new{border:1px solid var(--line);background:var(--paper);color:var(--accent);border-radius:999px;padding:4px 12px;font-size:12px;font-weight:700;cursor:pointer}
 .lst-new:hover{background:var(--soft)}
@@ -875,7 +877,7 @@ function renderList(){
   var html=v.length?v.map(noteHtml).join(''):'<li class="none" style="grid-column:1/-1">'+'이 노트에 글이 없어요. 오른쪽 위의 + 새 글로 시작해 보세요.'+'</li>';
   if(S.book&&!S.tag&&!S.q.trim()){
     var lo=sortCards(liveNotes().filter(function(n){return !cardBookId(n)}));
-    html+='<li class="sec-head" data-droploose="1"><span>노트에 넣지 않은 글 · '+lo.length+'개</span><button type="button" class="lst-new" data-newin="_">+ 새 글</button></li>'+lo.map(noteHtml).join('');
+    html+='<li class="sec-head"><span>노트에 넣지 않은 글 · '+lo.length+'개</span><button type="button" class="lst-new" data-newin="_">+ 새 글</button></li>'+lo.map(noteHtml).join('')+'<li class="loose-zone" data-droploose="1"><span>여기에 놓으면 노트에서 빠져요</span></li>';
   }
   $('notes').innerHTML=html;
 }
@@ -2267,6 +2269,7 @@ function dropTarget(t,px,py){
   if(el)return {el:el,type:'into',id:el.getAttribute('data-book'),cls:['drop-ok','drop-ok']};
   el=t.closest('[data-tbook]');
   if(el){var k=el.getAttribute('data-tbook');return {el:el,type:'into',id:k==='_'?'':k,cls:['drop-ok','drop-ok']}}
+  if(t.id==='notes'&&S.book)return {el:t,type:'into',id:'',cls:['drop-ok','drop-ok']};
   el=t.closest('[data-bookhome],[data-droploose]');
   if(el)return {el:el,type:'into',id:'',cls:['drop-ok','drop-ok']};
   return null;
