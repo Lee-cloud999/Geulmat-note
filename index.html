@@ -196,6 +196,13 @@ svg{display:block;flex:none}
 .linkbtn:hover{color:var(--ink)}
 .linkbtn:disabled{opacity:.5;cursor:default}
 .foot-note{min-height:1.4em;overflow-wrap:anywhere}
+.btn.ghost{background:none;color:var(--ink);border:1px solid var(--line)}
+.btn.ghost:hover:not(:disabled){background:var(--soft)}
+.gate-note{margin:0;text-align:center;font-size:12px;color:var(--ink2)}
+.move{display:grid;gap:10px;margin:0 0 8px;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--paper);font-size:13px}
+.move p{margin:0}
+.move-btns{display:flex;gap:8px}
+.move-btns .btn{height:34px;padding:0 14px}
 </style>
 </head>
 <body>
@@ -215,6 +222,7 @@ svg{display:block;flex:none}
       <div class="foot-btns">
         <button class="linkbtn" id="btnBackup" type="button">백업 받기</button>
         <button class="linkbtn" id="btnRestore" type="button">백업 불러오기</button>
+        <button class="linkbtn" id="btnGoCloud" type="button" hidden>로그인하고 동기화</button>
         <button class="linkbtn" id="btnInstall" type="button" hidden>앱으로 설치</button>
         <button class="linkbtn" id="btnLogout" type="button" hidden>로그아웃</button>
       </div>
@@ -233,6 +241,13 @@ svg{display:block;flex:none}
       <button class="icon" id="btnNew" type="button" aria-label="새 노트"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></button>
     </header>
     <div class="lst-title" id="lstTitle"></div>
+    <div class="move" id="movePanel" hidden>
+      <p id="moveText"></p>
+      <div class="move-btns">
+        <button class="btn" id="moveYes" type="button">계정으로 옮기기</button>
+        <button class="btn ghost" id="moveNo" type="button">나중에</button>
+      </div>
+    </div>
     <ul class="notes" id="notes"></ul>
   </section>
 
@@ -303,11 +318,14 @@ svg{display:block;flex:none}
     <p class="msg" id="authMsg" role="alert"></p>
     <button class="btn block" id="authGo" type="submit">로그인</button>
     <button class="textbtn" id="authReset" type="button">비밀번호를 잊었어요</button>
+    <button class="btn ghost block" id="authLocal" type="button">로그인 없이 이 기기에서만 쓰기</button>
+    <p class="gate-note">다른 기기와 동기화되지 않아요. 나중에 로그인하면 쓴 노트를 계정으로 옮길 수 있어요.</p>
   </form>
   <div class="gate-box" id="gateFail" hidden>
     <div class="auth-brand">글맛노트</div>
     <p class="msg" id="failMsg" role="alert"></p>
     <button class="btn block" id="failRetry" type="button">다시 시도</button>
+    <button class="btn ghost block" id="failLocal" type="button">로그인 없이 이 기기에서만 쓰기</button>
   </div>
 </div>
 
@@ -317,6 +335,7 @@ svg{display:block;flex:none}
 'use strict';
 
 var KEY='geulmat:local:v1';
+var CHOICE_KEY='geulmat:choice';
 var FIREBASE_VERSION='10.12.2';
 var $=function(id){return document.getElementById(id)};
 var TAG_RE=/(^|[\s(])#([\p{L}\p{N}_][\p{L}\p{N}_\-\/]*)/gu;
@@ -494,7 +513,11 @@ function renderAccount(){
     $('syncState').dataset.state=si.s;
   }
   var note=S.flash;
-  if(!note&&S.mode==='local')note=S.localFail?'저장 공간을 쓸 수 없어서 이 창을 닫으면 사라져요.':'이 기기에만 저장돼요. 다른 기기와 동기화하려면 설정이 필요해요.';
+  if(!note&&S.mode==='local'){
+    if(S.localFail)note='저장 공간을 쓸 수 없어서 이 창을 닫으면 사라져요.';
+    else note=cloudConfigured()?'이 기기에만 저장돼요. 로그인하면 다른 기기와 동기화돼요.':'이 기기에만 저장돼요. 다른 기기와 동기화하려면 설정이 필요해요.';
+  }
+  $('btnGoCloud').hidden=!(S.mode==='local'&&cloudConfigured());
   $('store').textContent=note||'';
 }
 function flash(msg){
@@ -977,7 +1000,7 @@ function onRemote(docs,meta){
   ensureActive();
   renderAll();
   syncEditorIfChanged();
-  maybeSeed();
+  maybeSeed();maybeOfferMove();
 }
 function onSettingsSnap(data,meta){
   if(S.mode!=='cloud')return;
@@ -986,7 +1009,7 @@ function onSettingsSnap(data,meta){
   var n=active();
   if(n){applyFont(n);fit()}
   renderBar();
-  maybeSeed();
+  maybeSeed();maybeOfferMove();
 }
 function onSubErr(err){
   var t=writeErrText(err&&err.code);
@@ -996,13 +1019,14 @@ function endSession(){
   if(unsubNotes){try{unsubNotes()}catch(e){}unsubNotes=null}
   if(unsubSettings){try{unsubSettings()}catch(e){}unsubSettings=null}
   S.user=null;
+  $('movePanel').hidden=true;
 }
 function startSession(u){
   endSession();
   timers.forEach(function(t){clearTimeout(t)});timers.clear();dirty.clear();
   S.user=u;S.mode='cloud';S.notes=[];S.activeId=null;S.tag=null;S.q='';$('q').value='';
   S.settings={size:18,defaultFont:'gowun-batang',seeded:false};
-  S.pending=false;S.serverNotes=false;S.serverSettings=false;S.serverEmpty=false;S.seedDone=false;S.err=null;
+  S.pending=false;S.serverNotes=false;S.serverSettings=false;S.serverEmpty=false;S.seedDone=false;S.moveAsked=false;S.err=null;$('movePanel').hidden=true;
   S.view='list';
   showGate(null);
   loadEditor();renderAll();
@@ -1010,6 +1034,7 @@ function startSession(u){
   unsubNotes=backend.subscribeNotes(u.uid,onRemote,onSubErr);
 }
 function handleAuth(u){
+  if(localChoice())return;
   if(!u){
     endSession();
     S.mode='boot';S.notes=[];S.activeId=null;
@@ -1018,6 +1043,69 @@ function handleAuth(u){
   }
   if(S.user&&S.user.uid===u.uid)return;
   startSession(u);
+}
+
+/* ---------- working without an account ---------- */
+function localChoice(){try{return localStorage.getItem(CHOICE_KEY)==='local'}catch(e){return false}}
+function setLocalChoice(on){try{if(on)localStorage.setItem(CHOICE_KEY,'local');else localStorage.removeItem(CHOICE_KEY)}catch(e){}}
+function cloudConfigured(){var c=window.GULMAT_FIREBASE;return !!(window.__gulmatBackend||(c&&c.apiKey&&c.projectId))}
+function goLocal(){
+  S.mode='local';S.user=null;loadLocal();
+  S.activeId=null;S.tag=null;S.q='';$('q').value='';
+  ensureActive();renderAll();loadEditor();showGate(null);
+}
+function chooseLocal(remember){
+  if(remember)setLocalChoice(true);
+  authMsg('',false);
+  goLocal();
+}
+function goCloud(){
+  flushAllNow();
+  setLocalChoice(false);
+  location.reload();
+}
+function newId(){return 'n'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function localNotesToMove(){
+  var d;
+  try{d=JSON.parse(localStorage.getItem(KEY))}catch(e){return []}
+  if(!d||!Array.isArray(d.notes))return [];
+  return d.notes.filter(function(n){
+    if(!n||typeof n!=='object'||isEmpty(n))return false;
+    return !(/^welcome-\d$/.test(n.id)&&n.updatedAt===n.createdAt);
+  });
+}
+function maybeOfferMove(){
+  if(S.mode!=='cloud'||S.moveAsked||!S.seedDone)return;
+  S.moveAsked=true;
+  var list=localNotesToMove();
+  if(!list.length)return;
+  $('moveText').textContent='로그인하기 전에 이 기기에 쓴 노트가 '+list.length+'개 있어요. 계정으로 옮길까요?';
+  $('movePanel').hidden=false;
+}
+function moveLocal(){
+  var list=localNotesToMove();
+  $('movePanel').hidden=true;
+  if(!list.length||!cloudReady())return;
+  var sig=new Set(),taken=new Set(),t0=Date.now(),ps=[],added=0;
+  S.notes.forEach(function(n){taken.add(n.id);sig.add((n.title||'')+'\u0000'+(n.body||''))});
+  list.forEach(function(x){
+    var title=typeof x.title==='string'?x.title:'',text=typeof x.body==='string'?x.body:'';
+    if(sig.has(title+'\u0000'+text))return;
+    var id=(typeof x.id==='string'&&/^[A-Za-z0-9_\-]{1,60}$/.test(x.id)&&!taken.has(x.id))?x.id:newId();
+    taken.add(id);sig.add(title+'\u0000'+text);
+    var n={id:id,title:title,body:text,font:typeof x.font==='string'?x.font:S.settings.defaultFont,pinned:!!x.pinned,createdAt:+x.createdAt||t0,updatedAt:+x.updatedAt||t0};
+    S.notes.push(n);n._saved=true;added++;
+    try{ps.push(Promise.resolve(backend.saveNote(S.user.uid,id,noteDoc(n))).then(function(){return true},function(e){onWriteError(e);return false}))}
+    catch(e){onWriteError(e);ps.push(Promise.resolve(false))}
+  });
+  ensureActive();renderAll();
+  flash(added?added+'개를 계정으로 옮기고 있어요.':'이미 계정에 있는 노트라 옮길 것이 없었어요.');
+  Promise.all(ps).then(function(r){
+    if(r.every(Boolean)){
+      try{localStorage.removeItem(KEY)}catch(e){}
+      if(added)flash(added+'개를 계정으로 옮겼어요.');
+    }else flash('일부 노트를 올리지 못했어요. 이 기기의 노트는 지우지 않았어요.');
+  });
 }
 
 /* ---------- sign-in screen ---------- */
@@ -1046,7 +1134,7 @@ function setGateMode(m){
 }
 function setBusy(b){
   authBusy=b;
-  $('authGo').disabled=b;$('authReset').disabled=b;
+  $('authGo').disabled=b;$('authReset').disabled=b;$('authLocal').disabled=b;
 }
 function authErrText(code){
   switch(code){
@@ -1219,10 +1307,7 @@ function boot(){
   var configured=!!(cfg&&cfg.apiKey&&cfg.projectId);
   /* window.__gulmatBackend lets a test replace the server; it is never set in normal use */
   var injected=window.__gulmatBackend||null;
-  if(!injected&&!configured){
-    S.mode='local';loadLocal();S.activeId=null;ensureActive();renderAll();loadEditor();showGate(null);
-    return;
-  }
+  if((!injected&&!configured)||localChoice()){goLocal();return}
   showGate('splash');
   var ready=injected?Promise.resolve():loadFirebase();
   ready.then(function(){
@@ -1436,6 +1521,11 @@ $('authForm').addEventListener('submit',submitAuth);
 $('authReset').addEventListener('click',resetPassword);
 $('failRetry').addEventListener('click',function(){location.reload()});
 $('btnLogout').addEventListener('click',logout);
+$('authLocal').addEventListener('click',function(){chooseLocal(true)});
+$('failLocal').addEventListener('click',function(){chooseLocal(false)});
+$('btnGoCloud').addEventListener('click',goCloud);
+$('moveYes').addEventListener('click',moveLocal);
+$('moveNo').addEventListener('click',function(){$('movePanel').hidden=true});
 $('btnBackup').addEventListener('click',exportBackup);
 $('btnRestore').addEventListener('click',function(){$('fileIn').click()});
 $('fileIn').addEventListener('change',function(){
