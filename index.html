@@ -115,6 +115,22 @@ svg{display:block;flex:none}
 .ed{position:relative;background:var(--paper)}
 .ed-bar{display:flex;align-items:center;gap:4px;height:52px;padding-inline:16px}
 .ed-bar .grow{flex:1}
+.stat{position:relative;display:flex;align-items:center;gap:10px;min-width:0;font-size:13px;color:var(--ink2);font-variant-numeric:tabular-nums}
+.cntbtn{padding:5px 10px;border:1px solid var(--line);border-radius:999px;background:var(--paper);color:var(--ink);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+.cntbtn:empty{display:none}
+.cntbtn:hover{background:var(--soft)}
+.save{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.save:empty{display:none}
+.save::before{content:"";flex:none;width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.save[data-s="busy"]::before{background:#d9a431}
+.save[data-s="off"]::before{background:#8a8f98}
+.save[data-s="err"]{color:var(--danger)}
+.save[data-s="err"]::before{background:var(--danger)}
+.cntpop{position:absolute;left:0;top:40px;z-index:30;min-width:200px;padding:10px 14px;display:grid;gap:4px;background:var(--paper);color:var(--ink);border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 28px rgba(0,0,0,.18);font-size:13px}
+.cntpop[hidden]{display:none}
+.cntpop div{display:flex;justify-content:space-between;gap:18px}
+.cntpop span{color:var(--ink2)}
+@media (max-width:520px){.save[data-s="ok"] ,.save[data-s="busy"]{font-size:0;gap:0}.save[data-s="ok"]::before,.save[data-s="busy"]::before{width:9px;height:9px}}
 .fontbtn{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 12px;border:1px solid var(--line);border-radius:8px;background:var(--paper);cursor:pointer;max-width:55%}
 .fontbtn:hover{background:var(--soft)}
 .fontbtn .aa{font-family:var(--brand);font-weight:700;font-size:17px;color:var(--accent)}
@@ -284,7 +300,11 @@ svg{display:block;flex:none}
   <main class="pane ed" id="ed">
     <header class="ed-bar">
       <button class="icon only-narrow" id="btnBack" type="button" aria-label="노트 목록으로"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
-      <div class="grow"></div>
+      <div class="grow stat">
+        <button class="cntbtn" id="count" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="cntPop" title="글자수 자세히 보기"></button>
+        <span class="save" id="saveState" role="status" data-s="ok"></span>
+        <div class="cntpop" id="cntPop" hidden></div>
+      </div>
       <button class="icon hbtn" id="btnHead" type="button" aria-label="소제목 넣기 또는 빼기" title="소제목">H</button>
       <button class="fontbtn" id="btnFont" type="button" aria-haspopup="dialog" aria-expanded="false"><span class="aa">Aa</span><span id="fontName"></span></button>
       <button class="icon" id="btnPin" type="button" aria-label="맨 위에 고정" aria-pressed="false"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16v5M9 3h6l-1 6 3 3v2H7v-2l3-3z"/></svg></button>
@@ -304,7 +324,6 @@ svg{display:block;flex:none}
         <button class="btn" id="btnNew2" type="button">새 노트 쓰기</button>
       </div>
     </div>
-    <footer class="ed-foot"><span id="count"></span><span id="saveState"></span></footer>
     <div class="pop" id="pop" role="dialog" aria-label="글꼴과 글자 크기" hidden>
       <div class="pop-head">
         <strong>글꼴</strong>
@@ -585,13 +604,17 @@ function selectedText(){
 }
 function renderMeta(){
   var n=active();
-  if(!n){$('count').textContent='';$('saveState').textContent='';return}
+  if(!n){$('count').textContent='';$('saveState').textContent='';$('cntPop').hidden=true;return}
   var body=n.body||'';
   var chars=Array.from(body.replace(/\s+/g,'')).length;
   var all=Array.from(body).length;
   var sel=selectedText();
-  var txt=sel?'선택 '+Array.from(sel.replace(/\s+/g,'')).length.toLocaleString('ko-KR')+'자 · ':'';
-  $('count').textContent=txt+'공백 제외 '+chars.toLocaleString('ko-KR')+'자 · 공백 포함 '+all.toLocaleString('ko-KR')+'자 · 수정 '+when(n.updatedAt);
+  var nf=function(x){return x.toLocaleString('ko-KR')};
+  $('count').textContent=sel?'선택 '+nf(Array.from(sel.replace(/\s+/g,'')).length)+'자':nf(chars)+'자';
+  $('cntPop').innerHTML=(sel?'<div><span>선택 (공백 제외)</span><b>'+nf(Array.from(sel.replace(/\s+/g,'')).length)+'자</b></div>':'')+
+    '<div><span>공백 제외</span><b>'+nf(chars)+'자</b></div>'+
+    '<div><span>공백 포함</span><b>'+nf(all)+'자</b></div>'+
+    '<div><span>마지막 수정</span><b>'+esc(when(n.updatedAt))+'</b></div>';
   renderStatus();
 }
 function renderStatus(){
@@ -601,6 +624,7 @@ function renderStatus(){
   else if(S.mode==='cloud')t=!navigator.onLine?'오프라인 · 연결되면 올려요':(S.pending?'올리는 중…':'저장됨');
   else t='저장됨';
   $('saveState').textContent=t;
+  $('saveState').dataset.s=S.err?'err':(timers.size||(S.mode==='cloud'&&S.pending)?'busy':(S.mode==='cloud'&&!navigator.onLine?'off':'ok'));
 }
 function syncInfo(){
   if(!navigator.onLine)return {t:'오프라인 · 연결되면 올려요',s:'off'};
@@ -1726,6 +1750,10 @@ $('btnGoCloud').addEventListener('click',goCloud);
 $('moveYes').addEventListener('click',moveLocal);
 $('moveNo').addEventListener('click',function(){$('movePanel').hidden=true});
 $('btnBackup').addEventListener('click',exportBackup);
+$('count').addEventListener('click',function(){
+  var h=$('cntPop').hidden;$('cntPop').hidden=!h;$('count').setAttribute('aria-expanded',h?'true':'false');
+});
+document.addEventListener('click',function(e){if(!$('cntPop').hidden&&!e.target.closest('.stat')){$('cntPop').hidden=true;$('count').setAttribute('aria-expanded','false')}});
 function openLic(){$('licWrap').hidden=false;$('licClose').focus()}
 function closeLic(){$('licWrap').hidden=true;$('btnLic').focus()}
 $('btnLic').addEventListener('click',openLic);
