@@ -223,7 +223,7 @@ svg{display:block;flex:none}
 .tagbtn[aria-current="true"] .hash,.tagbtn[aria-current="true"] .cnt{color:inherit}
 .tagbtn.trash{margin:0 0 0 auto;padding-top:5px;border-top:1px solid var(--line);border-radius:999px}
 .lst-title{padding:2px 4px 8px}
-.notes{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;align-content:start;padding:2px 0 28px}
+.notes{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;align-content:start;padding:2px 36px 28px;margin-inline:-36px;position:relative}
 .notes>li{display:flex;min-width:0}
 .note{display:flex;flex-direction:column;gap:8px;height:100%;min-height:132px;padding:14px 16px;background:var(--paper);border:1px solid var(--line);border-radius:14px;transition:transform .12s,box-shadow .12s}
 .note:hover{background:var(--paper);transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.09)}
@@ -300,6 +300,11 @@ svg{display:block;flex:none}
 @supports not selector(::-webkit-scrollbar){.notes,.tree,.tags{scrollbar-width:thin;scrollbar-color:#fff transparent}}
 .ed-card .ed-scroll{scrollbar-width:none;-ms-overflow-style:none}
 .ed-card .ed-scroll::-webkit-scrollbar{display:none;width:0;height:0}
+.ins-btn{position:absolute;width:26px;display:grid;place-items:center;padding:0;border:1.5px dashed var(--line);border-radius:10px;background:none;color:var(--ink2);font-size:18px;line-height:1;cursor:pointer;opacity:.0;transition:opacity .12s,background .12s}
+.notes:hover .ins-btn{opacity:.55}
+.ins-btn:hover,.ins-btn:focus-visible{opacity:1!important;background:var(--soft);color:var(--accent);border-color:var(--accent)}
+@media (hover:none){.ins-btn{opacity:.5}}
+@media (max-width:640px){.ins-btn{display:none}.notes{padding-inline:0;margin-inline:0}}
 .notes>li.loose-zone{grid-column:1/-1;display:flex;align-items:center;justify-content:center;min-height:130px;border:2px dashed transparent;border-radius:14px;font-size:13px;color:transparent}
 .notes:has(.dragging) .loose-zone{border-color:var(--line);color:var(--ink2)}
 .notes>li.loose-zone.drop-ok{border-color:var(--accent);color:var(--accent);background:var(--soft)}
@@ -902,7 +907,42 @@ function renderList(){
     html+='<li class="sec-head"><span>노트에 넣지 않은 글 · '+lo.length+'개</span><button type="button" class="lst-new" data-newin="_">+ 새 글</button></li>'+lo.map(noteHtml).join('')+'<li class="loose-zone" data-droploose="1"><span>여기에 놓으면 노트에서 빠져요</span></li>';
   }
   $('notes').innerHTML=html;
+  placeIns();
 }
+/* insert buttons in the gutters beside each group's first/last card */
+function placeIns(){
+  var box=$('notes');
+  Array.prototype.forEach.call(box.querySelectorAll('.ins-btn'),function(x){x.remove()});
+  if(S.trash||S.tag||S.q.trim())return;
+  var items=Array.prototype.slice.call(box.querySelectorAll(':scope>li[data-card],:scope>li.sec-head'));
+  var groups=[],cur=null,bk=S.book||'_';
+  items.forEach(function(li){
+    if(li.classList.contains('sec-head')){cur=null;bk='_';return}
+    if(!cur){cur={bk:bk,els:[]};groups.push(cur)}
+    cur.els.push(li);
+  });
+  groups.forEach(function(g){
+    var first=g.els[0],last=g.els[g.els.length-1];
+    [['front',first,-32],['end',last,null]].forEach(function(d){
+      var el=d[1],b=document.createElement('button');
+      b.type='button';b.className='ins-btn';b.textContent='+';
+      b.setAttribute('data-ins',d[0]);b.setAttribute('data-grp',g.bk);
+      b.setAttribute('aria-label',d[0]==='front'?'맨 앞에 새 글':'맨 뒤에 새 글');
+      b.title=d[0]==='front'?'맨 앞에 새 글':'맨 뒤에 새 글';
+      b.style.top=el.offsetTop+'px';b.style.height=el.offsetHeight+'px';
+      b.style.left=(d[0]==='front'?el.offsetLeft-32:el.offsetLeft+el.offsetWidth+6)+'px';
+      box.appendChild(b);
+    });
+  });
+}
+if(window.ResizeObserver)new ResizeObserver(function(){placeIns()}).observe($('notes'));
+$('notes').addEventListener('click',function(e){
+  var b=e.target.closest&&e.target.closest('.ins-btn');
+  if(!b)return;
+  e.stopPropagation();
+  newNote(b.getAttribute('data-grp'),b.getAttribute('data-ins'));
+},true);
+
 function renderBar(){
   var n=active();
   var eb=n?bookById(cardBookId(n)):null,edEl=$('ed');
@@ -1876,7 +1916,7 @@ function selectNote(id){
   if(narrow())S.view='edit';
   loadEditor();renderAll();
 }
-function newNote(target){
+function newNote(target,where){
   if(typeof target!=='string')target=undefined;
   S.trash=false;
   pruneEmpty(null);
@@ -1887,7 +1927,15 @@ function newNote(target){
   var mp=null;
   liveNotes().forEach(function(x){if((cardBookId(x)||'')===(n.bookId||'')&&typeof x.pos==='number'&&(mp===null||x.pos<mp))mp=x.pos});
   if(mp!==null)n.pos=mp-10;
+  var renum=[];
+  if(where==='end'){
+    var grp=sortCards(liveNotes().filter(function(x){return (cardBookId(x)||'')===(n.bookId||'')}));
+    grp.forEach(function(x,i){if(x.pos!==i*10){x.pos=i*10;renum.push(x.id)}});
+    n.pos=grp.length*10;
+  }
+  renum.forEach(function(i){dirty.add(i)});
   S.notes.push(n);dirty.add(n.id);
+  renum.forEach(flush);
   S.q='';$('q').value='';
   S.activeId=n.id;S.armDel=false;
   if(narrow())S.view='edit';
