@@ -217,7 +217,14 @@ svg{display:block;flex:none}
 .notes>li{display:flex;min-width:0}
 .note{display:flex;flex-direction:column;gap:8px;height:100%;min-height:132px;padding:14px 16px;background:var(--paper);border:1px solid var(--line);border-radius:14px;transition:transform .12s,box-shadow .12s}
 .note:hover{background:var(--paper);transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.09)}
+.note{position:relative}
 .note.pin{border-color:var(--accent)}
+.note.pin .n-title{padding-right:22px}
+.pin-mark{position:absolute;top:12px;right:12px;display:inline-flex;color:var(--accent)}
+.pin-mark svg{width:15px;height:15px}
+.tr-card{position:relative}
+.tr-card.pin b{padding-right:20px}
+.tr-card .pin-mark{top:8px;right:8px}
 .note .n-title{font-size:16px;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .note .n-snip{-webkit-line-clamp:4}
 .n-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:auto;padding-top:4px;font-size:12px;color:var(--ink2)}
@@ -742,9 +749,10 @@ function noteHtml(n){
   var bk=(!S.book&&(S.tag||S.q.trim()))?bookById(n.bookId):null;
   if(bk)tg=bk.emoji+' '+tg;
   return '<li draggable="true" data-card="'+esc(n.id)+'"><button type="button" class="note'+(n.pinned?' pin':'')+'" data-id="'+esc(n.id)+'">'+
+    (n.pinned?'<span class="pin-mark" title="고정된 글" aria-label="고정된 글">'+PIN_SM+'</span>':'')+
     '<span class="n-title'+(t?'':' ph')+'" style="font-family:'+esc(f.stack)+'">'+esc(t||'제목 없음')+'</span>'+
     '<span class="n-snip">'+esc(snip||'내용 없음')+'</span>'+
-    '<span class="n-foot"><span class="n-tags">'+esc(tg)+'</span>'+(n.pinned?'<span class="n-when">'+PIN_SM+'</span>':'')+'</span><span class="n-date">'+esc(stamp(n.createdAt))+'</span></button></li>';
+    '<span class="n-foot"><span class="n-tags">'+esc(tg)+'</span></span><span class="n-date">'+esc(stamp(n.createdAt))+'</span></button></li>';
 }
 function trashHtml(n){
   var left=Math.max(0,Math.ceil(((n.deletedAt||0)+TRASH_DAYS*DAY-Date.now())/DAY));
@@ -789,7 +797,7 @@ function renderTree(){
     return '<div class="tr-cards">'+list.slice(0,40).map(function(n){
       var sn=(n.body||'').replace(/^#{1,3}[ \t]+/gm,'').replace(new RegExp(TAG_RE.source,'gu'),'$1').replace(/\s+/g,' ').trim().slice(0,60);
       var t=(n.title||'').trim();
-      return '<button type="button" class="tr-card" draggable="true" data-tcard="'+esc(n.id)+'"><b>'+esc(t||'제목 없음')+'</b><span>'+esc(sn||'내용 없음')+'</span></button>';
+      return '<button type="button" class="tr-card'+(n.pinned?' pin':'')+'" draggable="true" data-tcard="'+esc(n.id)+'">'+(n.pinned?'<span class="pin-mark" aria-label="고정된 글">'+PIN_SM+'</span>':'')+'<b>'+esc(t||'제목 없음')+'</b><span>'+esc(sn||'내용 없음')+'</span></button>';
     }).join('')+(list.length>40?'<div class="tr-none">…외 '+(list.length-40)+'개 (노트를 열어 보세요)</div>':'')+'</div>';
   }
   books().forEach(function(k){
