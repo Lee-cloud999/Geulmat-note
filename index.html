@@ -378,6 +378,11 @@ svg{display:block;flex:none}
 .tr-card{display:grid;gap:1px;width:100%;padding:7px 10px;border:0;border-radius:8px;background:none;text-align:left;cursor:pointer}
 .tr-card b{font-weight:500;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tr-card span{font-size:12px;color:var(--ink2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tr-trash{cursor:default}
+.tr-mini{display:flex!important;gap:6px;margin-top:3px;overflow:visible!important}
+.tr-mini button,.tr-mini-bar button{font:inherit;font-size:12px;padding:3px 9px;border-radius:7px;border:1px solid var(--line);background:var(--paper);color:var(--ink);cursor:pointer}
+.tr-mini button.dg,.tr-mini-bar button.dg{color:#c0392b}
+.tr-mini-bar{padding:4px 10px}
 .tr-none{padding:6px 10px;font-size:12px;color:var(--ink2)}
 .tr-new{margin:8px 0 0;width:100%;justify-content:center}
 .bk-prev{position:relative;display:flex;flex-direction:column;justify-content:space-between;width:132px;aspect-ratio:3/4;margin:10px auto 14px;padding:14px 12px 12px 18px;border-radius:6px 14px 14px 6px;box-shadow:0 2px 8px rgba(0,0,0,.18),inset 6px 0 0 rgba(0,0,0,.14)}
@@ -935,6 +940,15 @@ function renderTree(){
   var lo=!!S.treeOpen._;
   out+='<div class="tr-row"><button type="button" class="tr-head" data-tbook="_" aria-expanded="'+lo+'"><span class="tr-chev">▶</span><span class="tr-emoji">📄</span><span class="tr-name">노트에 넣지 않은 글</span><span class="cnt">'+loose.length+'</span></button></div>';
   if(lo)out+=cardsHtml(loose);
+  var tr=trashed(),to=!!S.treeOpen.__trash;
+  out+='<div class="tr-row"><button type="button" class="tr-head" data-ttrash="1" aria-expanded="'+to+'"><span class="tr-chev">▶</span><span class="tr-emoji">🗑</span><span class="tr-name">휴지통</span><span class="cnt">'+tr.length+'</span></button></div>';
+  if(to){
+    if(!tr.length)out+='<div class="tr-cards"><div class="tr-none">휴지통이 비어 있어요.</div></div>';
+    else out+='<div class="tr-cards">'+tr.slice().sort(function(a,b){return b.deletedAt-a.deletedAt}).map(function(n){
+      var left=Math.max(0,Math.ceil(((n.deletedAt||0)+TRASH_DAYS*DAY-Date.now())/DAY));
+      return '<div class="tr-card tr-trash"><b>'+esc((n.title||'').trim()||'제목 없음')+'</b><span class="tr-date">'+left+'일 남음</span><span class="tr-mini"><button type="button" data-trestore="'+esc(n.id)+'">복원</button><button type="button" class="dg" data-tpurge="'+esc(n.id)+'">완전히 삭제</button></span></div>';
+    }).join('')+'<div class="tr-mini-bar"><button type="button" class="dg" data-temptytrash="1">휴지통 비우기</button></div></div>';
+  }
   $('tree').innerHTML=out;
 }
 function renderList(){
@@ -2659,6 +2673,12 @@ $('tree').addEventListener('click',function(e){
     return;
   }
   if(e.target.closest('[data-home]')){goHome();return}
+  if(e.target.closest('[data-ttrash]')){S.treeOpen.__trash=!S.treeOpen.__trash;renderTree();return}
+  var rs=e.target.closest('[data-trestore]');
+  if(rs){restoreNote(rs.getAttribute('data-trestore'));return}
+  var pg=e.target.closest('[data-tpurge]');
+  if(pg){if(window.confirm('이 글을 완전히 삭제할까요? 되돌릴 수 없어요.'))purgeNote(pg.getAttribute('data-tpurge'));return}
+  if(e.target.closest('[data-temptytrash]')){emptyTrash();return}
   var tb=e.target.closest('[data-tbook]');
   if(tb){var k=tb.getAttribute('data-tbook');S.treeOpen[k]=!S.treeOpen[k];renderTree();return}
   var to=e.target.closest('[data-topen]');
