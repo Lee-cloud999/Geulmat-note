@@ -190,6 +190,50 @@ svg{display:block;flex:none}
   .pop{position:fixed;top:auto;left:0;right:0;bottom:0;width:auto;max-height:76%;border-radius:16px 16px 0 0;border-bottom:0;padding-bottom:env(safe-area-inset-bottom,0px)}
 }
 
+/* gallery layout (cards on top, tags as chips, menu as drawer) */
+.app{grid-template-columns:minmax(0,1fr)}
+.pane{display:none}
+.app[data-view="list"] .lst,.app[data-view="tags"] .lst,.app[data-view="edit"] .ed{display:flex}
+.icon.only-narrow{display:inline-flex}
+.side{border-right:1px solid var(--line)}
+.app[data-view="tags"] .side{display:flex;position:fixed;top:env(safe-area-inset-top,0px);bottom:0;left:0;z-index:40;width:min(300px,86vw);box-shadow:0 0 40px rgba(0,0,0,.25)}
+.app[data-view="tags"]::after{content:"";position:fixed;inset:0;z-index:35;background:rgba(0,0,0,.35)}
+.side-foot{margin-top:auto;border-top:1px solid var(--line);padding-bottom:16px}
+.lst{background:var(--bg);border-right:0;padding-inline:20px}
+.lst>*{width:100%;max-width:1040px;margin-inline:auto}
+.lst-head{gap:10px;height:60px}
+.lst-brand{font-family:var(--brand);font-weight:700;font-size:20px;letter-spacing:.02em;white-space:nowrap}
+.search{background:var(--paper);border:1px solid var(--line);height:38px;border-radius:999px;padding:0 14px}
+.newbtn{height:38px;padding:0 16px;border-radius:999px;white-space:nowrap}
+.tags{flex:none;display:flex;flex-direction:row;align-items:center;gap:8px;overflow-x:auto;overflow-y:hidden;padding:2px 0 12px;scrollbar-width:none}
+.tags::-webkit-scrollbar{display:none}
+.tags .sec{display:none}
+.tagbtn{width:auto;flex:none;gap:6px;padding:5px 13px;border:1px solid var(--line);border-radius:999px;background:var(--paper);white-space:nowrap}
+.tagbtn[aria-current="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:600}
+.tagbtn[aria-current="true"] .hash,.tagbtn[aria-current="true"] .cnt{color:inherit}
+.tagbtn.trash{margin:0 0 0 auto;padding-top:5px;border-top:1px solid var(--line);border-radius:999px}
+.lst-title{padding:2px 4px 8px}
+.notes{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;align-content:start;padding:2px 0 28px}
+.notes>li{display:flex;min-width:0}
+.note{display:flex;flex-direction:column;gap:8px;height:100%;min-height:132px;padding:14px 16px;background:var(--paper);border:1px solid var(--line);border-radius:14px;transition:transform .12s,box-shadow .12s}
+.note:hover{background:var(--paper);transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.09)}
+.note.pin{border-color:var(--accent)}
+.note .n-title{font-size:16px;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.note .n-snip{-webkit-line-clamp:4}
+.n-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:auto;padding-top:4px;font-size:12px;color:var(--ink2)}
+.n-tags{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--accent)}
+.notes>.none,.notes>.tr-bar{grid-column:1/-1}
+.tr-item{background:var(--paper);border:1px solid var(--line);border-radius:14px;align-content:start}
+.tr-item+.tr-item{border-top:1px solid var(--line)}
+.ed-bar{max-width:760px;width:100%;margin-inline:auto}
+@media (max-width:520px){
+  .lst{padding-inline:14px}
+  .lst-brand,.newbtn span{display:none}
+  .newbtn{padding:0 11px}
+  .notes{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .note{padding:12px;min-height:116px}
+}
+
 /* sign-in gate */
 .gate{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:24px 16px;background:var(--bg);overflow:auto}
 .auth-card{width:min(380px,100%);display:grid;gap:14px}
@@ -258,7 +302,6 @@ svg{display:block;flex:none}
       <button class="icon only-narrow" id="btnSideBack" type="button" aria-label="노트 목록으로"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
       <span>글맛노트</span>
     </div>
-    <nav class="tags" id="tags" aria-label="태그"></nav>
     <div class="side-foot">
       <div class="acct" id="acct" hidden>
         <div class="acct-mail" id="acctMail"></div>
@@ -279,13 +322,15 @@ svg{display:block;flex:none}
 
   <section class="pane lst" id="lst">
     <header class="lst-head">
-      <button class="icon only-narrow" id="btnTags" type="button" aria-label="태그 보기"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h16M4 15h16M10 3 8 21M16 3l-2 18"/></svg></button>
+      <button class="icon" id="btnTags" type="button" aria-label="메뉴 열기"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+      <span class="lst-brand">글맛노트</span>
       <label class="search">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
         <input id="q" type="search" placeholder="노트 검색" autocomplete="off" aria-label="노트 검색">
       </label>
-      <button class="icon" id="btnNew" type="button" aria-label="새 노트"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></button>
+      <button class="btn newbtn" id="btnNew" type="button" aria-label="새 노트"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg><span>새 노트</span></button>
     </header>
+    <nav class="tags" id="tags" aria-label="태그"></nav>
     <div class="lst-title" id="lstTitle"></div>
     <div class="move" id="movePanel" hidden>
       <p id="moveText"></p>
@@ -421,7 +466,7 @@ var $=function(id){return document.getElementById(id)};
 var TAG_RE=/(^|[\s(])#([\p{L}\p{N}_][\p{L}\p{N}_\-\/]*)/gu;
 var SIZE_MIN=16,SIZE_MAX=30;
 var mqNarrow=window.matchMedia('(max-width: 899px)');
-function narrow(){return mqNarrow.matches}
+function narrow(){return true}
 
 var FONTS=[
   {id:'sys',name:'시스템 기본',stack:'system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif',scale:1},
@@ -544,12 +589,13 @@ function renderTags(){
 }
 function noteHtml(n){
   var f=fontById(n.font);
-  var snip=(n.body||'').replace(/^#{1,3}[ \t]+/gm,'').replace(new RegExp(TAG_RE.source,'gu'),'$1').replace(/\s+/g,' ').trim().slice(0,110);
+  var snip=(n.body||'').replace(/^#{1,3}[ \t]+/gm,'').replace(new RegExp(TAG_RE.source,'gu'),'$1').replace(/\s+/g,' ').trim().slice(0,160);
   var t=(n.title||'').trim();
-  return '<li><button type="button" class="note" data-id="'+esc(n.id)+'"'+(n.id===S.activeId?' aria-current="true"':'')+'>'+
-    '<span class="n-top"><span class="n-title'+(t?'':' ph')+'" style="font-family:'+esc(f.stack)+'">'+esc(t||'제목 없음')+'</span>'+
-    '<span class="n-when">'+(n.pinned?PIN_SM:'')+esc(when(n.updatedAt))+'</span></span>'+
-    '<span class="n-snip">'+esc(snip||'내용 없음')+'</span></button></li>';
+  var tg=tagsOf(n).slice(0,3).map(function(x){return '#'+x}).join(' ');
+  return '<li><button type="button" class="note'+(n.pinned?' pin':'')+'" data-id="'+esc(n.id)+'">'+
+    '<span class="n-title'+(t?'':' ph')+'" style="font-family:'+esc(f.stack)+'">'+esc(t||'제목 없음')+'</span>'+
+    '<span class="n-snip">'+esc(snip||'내용 없음')+'</span>'+
+    '<span class="n-foot"><span class="n-tags">'+esc(tg)+'</span><span class="n-when">'+(n.pinned?PIN_SM:'')+esc(when(n.updatedAt))+'</span></span></button></li>';
 }
 function trashHtml(n){
   var left=Math.max(0,Math.ceil(((n.deletedAt||0)+TRASH_DAYS*DAY-Date.now())/DAY));
@@ -1635,6 +1681,8 @@ $('btnNew').addEventListener('click',newNote);
 $('btnNew2').addEventListener('click',newNote);
 $('btnTags').addEventListener('click',function(){S.view='tags';applyView()});
 $('btnSideBack').addEventListener('click',function(){S.view='list';applyView()});
+$('app').addEventListener('click',function(e){if(e.target===$('app')&&S.view==='tags'){S.view='list';applyView()}});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&S.view==='tags'&&$('licWrap').hidden){S.view='list';applyView()}});
 $('btnBack').addEventListener('click',function(){
   closePop();
   var id=S.activeId;
