@@ -272,7 +272,7 @@ svg{display:block;flex:none}
 .cover{position:relative;display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;gap:6px;aspect-ratio:3/4;padding:14px 12px 12px 18px;border:0;border-radius:6px 14px 14px 6px;text-align:left;cursor:pointer;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.14),inset 6px 0 0 rgba(0,0,0,.14);transition:transform .12s,box-shadow .12s}
 .cover.sel{outline:3px solid var(--accent);outline-offset:2px}
 .cover:hover{transform:translateY(-3px);box-shadow:0 10px 22px rgba(0,0,0,.2),inset 6px 0 0 rgba(0,0,0,.14)}
-.cv-emoji{font-size:34px;line-height:1}
+.cv-emoji{font-size:34px;line-height:1;filter:drop-shadow(1px 0 0 #fff) drop-shadow(-1px 0 0 #fff) drop-shadow(0 1px 0 #fff) drop-shadow(0 -1px 0 #fff)}
 .cv-title{position:absolute;left:18px;right:12px;top:47%;transform:translateY(-50%);font-family:var(--brand);font-weight:700;font-size:17px;line-height:1.3;overflow-wrap:anywhere;word-break:keep-all;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .cv-cnt{font-size:12px;opacity:.85}
 .cover.add{align-items:center;justify-content:center;gap:8px;background:none;border:2px dashed var(--line);box-shadow:none;color:var(--ink2);text-align:center;padding:12px}
@@ -286,7 +286,7 @@ svg{display:block;flex:none}
 .bb-btns{display:flex;gap:8px}
 .bb-btn{border:0;border-radius:999px;padding:5px 12px;background:rgba(255,255,255,.28);color:inherit;cursor:pointer;font-size:13px}
 .bookbar{flex-wrap:nowrap;gap:10px;padding:8px 8px 8px 10px;margin-bottom:10px;background:var(--paper);border:1px solid var(--line);border-radius:14px;box-shadow:none;color:var(--ink)}
-.bookbar .bb-emoji{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;font-size:19px;box-shadow:inset 3px 0 0 rgba(0,0,0,.12)}
+.bookbar .bb-emoji{filter:drop-shadow(1px 0 0 #fff) drop-shadow(-1px 0 0 #fff) drop-shadow(0 1px 0 #fff) drop-shadow(0 -1px 0 #fff);display:grid;place-items:center;width:34px;height:34px;border-radius:10px;font-size:19px;box-shadow:inset 3px 0 0 rgba(0,0,0,.12)}
 .bookbar .bb-title{font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;overflow-wrap:normal}
 .bb-count{font-size:12px;color:var(--ink2);background:var(--soft);border-radius:999px;padding:2px 9px}
 .bb-back,.bb-btn{display:grid;place-items:center;width:32px;height:32px;padding:0;border:0;border-radius:10px;background:none;color:var(--ink2);cursor:pointer}
@@ -312,7 +312,7 @@ svg{display:block;flex:none}
 .tr-head{flex:1;min-width:0;display:flex;align-items:center;gap:8px;padding:8px 10px;border:0;border-radius:8px;background:none;text-align:left;cursor:pointer}
 .tr-head:hover,.tr-open:hover,.tr-card:hover{background:var(--soft)}
 .tr-head[aria-expanded="true"]{font-weight:600}
-.tr-emoji{width:26px;height:26px;display:grid;place-items:center;border-radius:6px;font-size:15px;flex:none}
+.tr-emoji{filter:drop-shadow(1px 0 0 #fff) drop-shadow(-1px 0 0 #fff) drop-shadow(0 1px 0 #fff) drop-shadow(0 -1px 0 #fff);width:26px;height:26px;display:grid;place-items:center;border-radius:6px;font-size:15px;flex:none}
 .tr-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tr-chev{color:var(--ink2);font-size:11px;transition:transform .12s}
 .tr-head[aria-expanded="true"] .tr-chev{transform:rotate(90deg)}
@@ -324,12 +324,22 @@ svg{display:block;flex:none}
 .tr-none{padding:6px 10px;font-size:12px;color:var(--ink2)}
 .tr-new{margin:8px 0 0;width:100%;justify-content:center}
 .bk-prev{position:relative;display:flex;flex-direction:column;justify-content:space-between;width:132px;aspect-ratio:3/4;margin:10px auto 14px;padding:14px 12px 12px 18px;border-radius:6px 14px 14px 6px;box-shadow:0 2px 8px rgba(0,0,0,.18),inset 6px 0 0 rgba(0,0,0,.14)}
-.bk-lbl{margin:12px 0 6px;font-size:12px;color:var(--ink2)}
+.lic.bk{max-height:none;overflow:visible}
+.lic.bk .lic-body{overflow:visible;padding-bottom:14px}
+.bk-top{display:flex;gap:16px;align-items:center;margin-top:10px}
+.bk-top .bk-prev{width:96px;margin:0;flex:none;padding:10px 8px 8px 14px}
+.bk-top .bk-prev .cv-emoji{font-size:26px}
+.bk-top .bk-prev .cv-title{font-size:13px;left:14px;right:8px}
+.bk-fields{flex:1;min-width:0;display:grid;gap:8px}
+.bk-fields .fld input{height:38px}
+.bk-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px;flex-wrap:wrap}
+.bk-foot .bk-custom,.bk-foot .bk-btns{margin:0}
+.bk-lbl{margin:10px 0 6px;font-size:12px;color:var(--ink2)}
 .bk-emojis{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin-top:8px}
-.bk-emojis button{height:36px;border:1px solid var(--line);border-radius:8px;background:var(--paper);font-size:18px;cursor:pointer}
+.bk-emojis button{height:32px;border:1px solid var(--line);border-radius:8px;background:var(--paper);font-size:18px;cursor:pointer}
 .bk-emojis button:hover,.bk-emojis button[aria-pressed="true"]{background:var(--soft);border-color:var(--accent)}
 .bk-pal{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
-.bk-pal button{height:44px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12);border:2px solid transparent;border-radius:10px;cursor:pointer}
+.bk-pal button{height:34px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12);border:2px solid transparent;border-radius:10px;cursor:pointer}
 .bk-pal button[aria-pressed="true"]{border-color:var(--ink)}
 .bk-custom{display:flex;gap:16px;margin-top:10px;font-size:13px;color:var(--ink2)}
 .bk-custom input{vertical-align:middle;width:44px;height:30px;padding:0;border:1px solid var(--line);border-radius:6px;background:none}
@@ -517,14 +527,20 @@ svg{display:block;flex:none}
   <section class="lic bk" role="dialog" aria-modal="true" aria-labelledby="bkHead">
     <header class="lic-head"><h2 id="bkHead">새 노트 만들기</h2><button class="icon" id="bkClose" type="button" aria-label="닫기">✕</button></header>
     <div class="lic-body">
-      <div class="bk-prev" id="bkPrev"><span class="cv-emoji" id="bkPe"></span><span class="cv-title" id="bkPt"></span></div>
-      <div class="fld"><label for="bkTitle">노트 이름</label><input id="bkTitle" maxlength="40" autocomplete="off"></div>
-      <div class="fld"><label for="bkEmoji">커버 이모지 (직접 입력해도 돼요)</label><input id="bkEmoji" maxlength="8" autocomplete="off"></div>
+      <div class="bk-top">
+        <div class="bk-prev" id="bkPrev"><span class="cv-emoji" id="bkPe"></span><span class="cv-title" id="bkPt"></span></div>
+        <div class="bk-fields">
+          <div class="fld"><label for="bkTitle">노트 이름</label><input id="bkTitle" maxlength="40" autocomplete="off"></div>
+          <div class="fld"><label for="bkEmoji">커버 이모지 (직접 입력해도 돼요)</label><input id="bkEmoji" maxlength="8" autocomplete="off"></div>
+        </div>
+      </div>
       <div class="bk-emojis" id="bkEmojis"></div>
       <div class="bk-lbl">커버 색</div>
       <div class="bk-pal" id="bkPal"></div>
-      <div class="bk-custom"><label>시작색 <input type="color" id="bkC1"></label><label>끝색 <input type="color" id="bkC2"></label></div>
-      <div class="bk-btns"><button class="btn" id="bkSave" type="button">저장</button><button class="btn ghost" id="bkCancel" type="button">취소</button></div>
+      <div class="bk-foot">
+        <div class="bk-custom"><label>시작색 <input type="color" id="bkC1"></label><label>끝색 <input type="color" id="bkC2"></label></div>
+        <div class="bk-btns"><button class="btn" id="bkSave" type="button">저장</button><button class="btn ghost" id="bkCancel" type="button">취소</button></div>
+      </div>
     </div>
   </section>
 </div>
@@ -2220,12 +2236,20 @@ function reorderCard(id,targetId,after){
   if(moved){if(bid)n.bookId=bid;else delete n.bookId;n.updatedAt=Date.now()}
   var list=sortCards(liveNotes().filter(function(x){return (cardBookId(x)||'')===(bid||'')&&x!==n}));
   var idx=list.indexOf(t);if(idx<0)idx=list.length;
-  list.splice(after?idx+1:idx,0,n);
+  var at=after?idx+1:idx;
+  list.splice(at,0,n);
+  var pv=list[at-1],nx=list[at+1],pinChanged=false;
+  if(nx&&nx.pinned&&!n.pinned){n.pinned=true;pinChanged='on'}
+  else if(pv&&!pv.pinned&&n.pinned){n.pinned=false;pinChanged='off'}
+  if(pinChanged)n.updatedAt=Date.now();
+  var changed=[];
   list.forEach(function(x,i){
     var np=i*10;
-    if(x.pos!==np||x===n){x.pos=np;flush(x.id)}
+    if(x.pos!==np||x===n){x.pos=np;changed.push(x.id)}
   });
+  changed.forEach(flush);
   if(moved){var b=bookById(bid);flash(b?'"'+(b.title||'새 노트')+'" 노트에 넣었어요.':'노트에서 뺐어요.')}
+  else if(pinChanged)flash(pinChanged==='on'?'고정 글 사이로 옮겨서 고정했어요.':'고정 글 아래로 옮겨서 고정을 풀었어요.');
   renderAll();
 }
 function reorderBook(id,targetId,after){
