@@ -348,7 +348,7 @@ svg{display:block;flex:none}
 
 .notes>li[draggable]{cursor:grab}
 .notes>li.dragging{opacity:.4}
-.drop-ok{outline:3px dashed var(--accent)!important;outline-offset:3px;transform:scale(1.03)}
+.drop-ok{outline:3px dashed var(--accent)!important;outline-offset:3px;transform:none!important}
 .tr-row.drop-ok,.tr-head.drop-ok{outline-offset:-2px;transform:none;background:var(--soft)}
 .bb-back.drop-ok{background:var(--soft);outline:2px solid var(--accent)}
 .drop-before{box-shadow:-5px 0 0 var(--accent)}
@@ -2247,6 +2247,7 @@ function reorderCard(id,targetId,after){
     var np=i*10;
     if(x.pos!==np||x===n){x.pos=np;changed.push(x.id)}
   });
+  changed.forEach(function(i){dirty.add(i)});
   changed.forEach(flush);
   if(moved){var b=bookById(bid);flash(b?'"'+(b.title||'새 노트')+'" 노트에 넣었어요.':'노트에서 뺐어요.')}
   else if(pinChanged)flash(pinChanged==='on'?'고정 글 사이로 옮겨서 고정했어요.':'고정 글 아래로 옮겨서 고정을 풀었어요.');
