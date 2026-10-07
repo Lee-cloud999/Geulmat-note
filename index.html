@@ -229,7 +229,12 @@ svg{display:block;flex:none}
 .pin-mark svg{width:15px;height:15px}
 .tr-card{position:relative}
 .tr-card.pin b{padding-right:20px}
-.tr-card .pin-mark{top:8px;right:8px}
+.tr-card .pin-mark{top:5px;right:4px;width:28px;height:28px;align-items:center;justify-content:center;border-radius:8px;opacity:0;color:var(--ink2);cursor:pointer;transition:opacity .12s,background .12s}
+.tr-card .pin-mark.on{opacity:1;color:var(--accent)}
+.tr-card .pin-mark:hover{background:var(--soft);color:var(--accent)}
+@media (hover:hover){.tr-card:hover .pin-mark{opacity:1}}
+@media (hover:none){.tr-card .pin-mark:not(.on){display:none}}
+.tr-card b{padding-right:28px}
 .note .n-title{font-size:16px;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .note .n-snip{-webkit-line-clamp:4}
 .n-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:auto;padding-top:4px;font-size:12px;color:var(--ink2)}
@@ -803,7 +808,7 @@ function renderTree(){
     return '<div class="tr-cards">'+list.slice(0,40).map(function(n){
       var sn=(n.body||'').replace(/^#{1,3}[ \t]+/gm,'').replace(new RegExp(TAG_RE.source,'gu'),'$1').replace(/\s+/g,' ').trim().slice(0,60);
       var t=(n.title||'').trim();
-      return '<button type="button" class="tr-card'+(n.pinned?' pin':'')+'" draggable="true" data-tcard="'+esc(n.id)+'">'+(n.pinned?'<span class="pin-mark" aria-label="고정된 글">'+PIN_SM+'</span>':'')+'<b>'+esc(t||'제목 없음')+'</b><span>'+esc(sn||'내용 없음')+'</span></button>';
+      return '<button type="button" class="tr-card'+(n.pinned?' pin':'')+'" draggable="true" data-tcard="'+esc(n.id)+'"><span class="pin-mark'+(n.pinned?' on':'')+'" data-pin="'+esc(n.id)+'" role="button" title="'+(n.pinned?'고정 해제':'맨 위에 고정')+'" aria-label="'+(n.pinned?'고정 해제':'맨 위에 고정')+'">'+(n.pinned?PIN_SM:PIN_OUT)+'</span><b>'+esc(t||'제목 없음')+'</b><span>'+esc(sn||'내용 없음')+'</span></button>';
     }).join('')+(list.length>40?'<div class="tr-none">…외 '+(list.length-40)+'개 (노트를 열어 보세요)</div>':'')+'</div>';
   }
   books().forEach(function(k){
@@ -2357,6 +2362,13 @@ $('bookBar').addEventListener('click',function(e){
   else if(e.target.closest('[data-bookdel]'))deleteBook();
 });
 $('tree').addEventListener('click',function(e){
+  var pm=e.target.closest('[data-pin]');
+  if(pm){
+    e.stopPropagation();
+    var pn=findNote(pm.getAttribute('data-pin'));
+    if(pn){pn.pinned=!pn.pinned;touch(pn);renderAll()}
+    return;
+  }
   if(e.target.closest('[data-home]')){goHome();return}
   var tb=e.target.closest('[data-tbook]');
   if(tb){var k=tb.getAttribute('data-tbook');S.treeOpen[k]=!S.treeOpen[k];renderTree();return}
