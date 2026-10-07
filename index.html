@@ -219,8 +219,13 @@ svg{display:block;flex:none}
 .note:hover{background:var(--paper);transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.09)}
 .note{position:relative}
 .note.pin{border-color:var(--accent)}
-.note.pin .n-title{padding-right:22px}
+.note .n-title{padding-right:26px}
 .pin-mark{position:absolute;top:12px;right:12px;display:inline-flex;color:var(--accent)}
+.note .pin-mark{top:8px;right:8px;width:28px;height:28px;align-items:center;justify-content:center;border-radius:8px;opacity:0;color:var(--ink2);cursor:pointer;transition:opacity .12s,background .12s}
+.note .pin-mark.on{opacity:1;color:var(--accent)}
+.note .pin-mark:hover{background:var(--soft);color:var(--accent)}
+@media (hover:hover){.note:hover .pin-mark,.note:focus-visible .pin-mark{opacity:1}}
+@media (hover:none){.note .pin-mark:not(.on){display:none}}
 .pin-mark svg{width:15px;height:15px}
 .tr-card{position:relative}
 .tr-card.pin b{padding-right:20px}
@@ -582,6 +587,7 @@ var FONTS=[
 ];
 function fontById(id){for(var i=0;i<FONTS.length;i++){if(FONTS[i].id===id)return FONTS[i]}return FONTS[1]}
 
+var PIN_OUT='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v5M9 3h6l-1 6 3 3v2H7v-2l3-3z"/></svg>';
 var PIN_SM='<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-label="고정됨"><path d="M12 16v5M9 3h6l-1 6 3 3v2H7v-2l3-3z"/></svg>';
 
 function welcomeBook(){
@@ -749,7 +755,7 @@ function noteHtml(n){
   var bk=(!S.book&&(S.tag||S.q.trim()))?bookById(n.bookId):null;
   if(bk)tg=bk.emoji+' '+tg;
   return '<li draggable="true" data-card="'+esc(n.id)+'"><button type="button" class="note'+(n.pinned?' pin':'')+'" data-id="'+esc(n.id)+'">'+
-    (n.pinned?'<span class="pin-mark" title="고정된 글" aria-label="고정된 글">'+PIN_SM+'</span>':'')+
+    '<span class="pin-mark'+(n.pinned?' on':'')+'" data-pin="'+esc(n.id)+'" role="button" title="'+(n.pinned?'고정 해제':'맨 위에 고정')+'" aria-label="'+(n.pinned?'고정 해제':'맨 위에 고정')+'">'+(n.pinned?PIN_SM:PIN_OUT)+'</span>'+
     '<span class="n-title'+(t?'':' ph')+'" style="font-family:'+esc(f.stack)+'">'+esc(t||'제목 없음')+'</span>'+
     '<span class="n-snip">'+esc(snip||'내용 없음')+'</span>'+
     '<span class="n-foot"><span class="n-tags">'+esc(tg)+'</span></span><span class="n-date">'+esc(stamp(n.createdAt))+'</span></button></li>';
@@ -1955,6 +1961,13 @@ function closePop(){
 
 /* ---------- events ---------- */
 $('notes').addEventListener('click',function(e){
+  var pm=e.target.closest('[data-pin]');
+  if(pm){
+    e.stopPropagation();
+    var pn=findNote(pm.getAttribute('data-pin'));
+    if(pn){pn.pinned=!pn.pinned;touch(pn);renderAll()}
+    return;
+  }
   var r=e.target.closest('[data-restore]');
   if(r){restoreNote(r.getAttribute('data-restore'));return}
   var pg=e.target.closest('[data-purge]');
