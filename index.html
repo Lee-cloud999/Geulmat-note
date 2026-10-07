@@ -842,10 +842,12 @@ function renderList(){
   $('lstTitle').innerHTML='<span>'+title+'</span><span>'+v.length+'개</span>';
   if(!v.length){
     var msg=S.q.trim()?'찾은 글이 없어요.':(S.tag?'이 태그가 붙은 글이 없어요.':(S.book?'이 노트에 글이 없어요. 오른쪽 위의 + 새 글로 시작해 보세요.':(books().length?'노트에 넣지 않은 글이 없어요.':'아직 글이 없어요. 오른쪽 위의 + 새 글로 시작해 보세요.')));
-    $('notes').innerHTML='<li class="none">'+msg+'</li>';
-    return;
+    if(!(S.book&&!S.tag&&!S.q.trim())){
+      $('notes').innerHTML='<li class="none">'+msg+'</li>';
+      return;
+    }
   }
-  var html=v.map(noteHtml).join('');
+  var html=v.length?v.map(noteHtml).join(''):'<li class="none" style="grid-column:1/-1">'+'이 노트에 글이 없어요. 오른쪽 위의 + 새 글로 시작해 보세요.'+'</li>';
   if(S.book&&!S.tag&&!S.q.trim()){
     var lo=sortCards(liveNotes().filter(function(n){return !cardBookId(n)}));
     if(lo.length)html+='<li class="sec-head">노트에 넣지 않은 글 <span>'+lo.length+'개</span></li>'+lo.map(noteHtml).join('');
