@@ -221,6 +221,9 @@ svg{display:block;flex:none}
 .note:hover{background:var(--paper);transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.09)}
 .note{position:relative}
 .note.pin{border-color:var(--accent)}
+.note.has-bk{overflow:hidden;background:linear-gradient(135deg,color-mix(in srgb,var(--bk1) 24%,var(--paper)),color-mix(in srgb,var(--bk2) 24%,var(--paper)))}
+.note.has-bk:hover{background:linear-gradient(135deg,color-mix(in srgb,var(--bk1) 24%,var(--paper)),color-mix(in srgb,var(--bk2) 24%,var(--paper)))}
+.note.has-bk::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:linear-gradient(180deg,var(--bk1),var(--bk2))}
 .note .n-title{padding-right:26px}
 .pin-mark{position:absolute;top:12px;right:12px;display:inline-flex;color:var(--accent)}
 .note .pin-mark{top:8px;right:8px;width:28px;height:28px;align-items:center;justify-content:center;border-radius:8px;opacity:0;color:var(--ink2);cursor:pointer;transition:opacity .12s,background .12s}
@@ -770,7 +773,9 @@ function noteHtml(n){
   var tg=tagsOf(n).slice(0,3).map(function(x){return '#'+x}).join(' ');
   var bk=(!S.book&&(S.tag||S.q.trim()))?bookById(n.bookId):null;
   if(bk)tg=bk.emoji+' '+tg;
-  return '<li draggable="true" data-card="'+esc(n.id)+'"><button type="button" class="note'+(n.pinned?' pin':'')+'" data-id="'+esc(n.id)+'">'+
+  var cb=bookById(cardBookId(n));
+  var cst=cb?' style="--bk1:'+esc(cb.c1)+';--bk2:'+esc(cb.c2)+'"':'';
+  return '<li draggable="true" data-card="'+esc(n.id)+'"><button type="button" class="note'+(n.pinned?' pin':'')+(cb?' has-bk':'')+'"'+cst+' data-id="'+esc(n.id)+'">'+
     '<span class="pin-mark'+(n.pinned?' on':'')+'" data-pin="'+esc(n.id)+'" role="button" title="'+(n.pinned?'고정 해제':'맨 위에 고정')+'" aria-label="'+(n.pinned?'고정 해제':'맨 위에 고정')+'">'+(n.pinned?PIN_SM:PIN_OUT)+'</span>'+
     '<span class="n-title'+(t?'':' ph')+'" style="font-family:'+esc(f.stack)+'">'+esc(t||'제목 없음')+'</span>'+
     '<span class="n-snip">'+esc(snip||'내용 없음')+'</span>'+
