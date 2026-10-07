@@ -901,7 +901,6 @@ function renderTree(){
   var lo=!!S.treeOpen._;
   out+='<div class="tr-row"><button type="button" class="tr-head" data-tbook="_" aria-expanded="'+lo+'"><span class="tr-chev">▶</span><span class="tr-emoji">📄</span><span class="tr-name">노트에 넣지 않은 글</span><span class="cnt">'+loose.length+'</span></button></div>';
   if(lo)out+=cardsHtml(loose);
-  out+='<button type="button" class="btn ghost tr-new" data-newbook="1">+ 새 노트 만들기</button>';
   $('tree').innerHTML=out;
 }
 function renderList(){
