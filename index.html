@@ -909,7 +909,8 @@ function renderList(){
   var nb=(!S.tag&&!S.q.trim())?'<button type="button" class="lst-new" data-newin="'+(S.book?esc(S.book):'_')+'">+ 새 글</button>':'';
   $('lstTitle').innerHTML='<span>'+title+' · '+v.length+'개</span>'+nb;
   if(!v.length){
-    var msg=S.q.trim()?'찾은 글이 없어요.':(S.tag?'이 태그가 붙은 글이 없어요.':(S.book?'이 노트에 글이 없어요. 오른쪽 위의 + 새 글로 시작해 보세요.':(books().length?'노트에 넣지 않은 글이 없어요.':'아직 글이 없어요. 오른쪽 위의 + 새 글로 시작해 보세요.')));
+    var loading=S.mode==='cloud'&&!S.serverNotes;
+    var msg=loading?'서버에서 글을 불러오는 중이에요. 이 문구가 오래 보이면 새 글은 쓰지 말고 잠시 뒤 다시 열어 주세요.':S.q.trim()?'찾은 글이 없어요.':(S.tag?'이 태그가 붙은 글이 없어요.':(S.book?'이 노트에 글이 없어요. 오른쪽 위의 + 새 글로 시작해 보세요.':(books().length?'노트에 넣지 않은 글이 없어요.':'아직 글이 없어요. 오른쪽 위의 + 새 글로 시작해 보세요.')));
     if(!(S.book&&!S.tag&&!S.q.trim())){
       $('notes').innerHTML='<li class="none">'+msg+'</li>';
       return;
@@ -1014,6 +1015,7 @@ function renderStatus(){
 function syncInfo(){
   if(!navigator.onLine)return {t:'오프라인 · 연결되면 올려요',s:'off'};
   if(S.pending||timers.size)return {t:'동기화 중…',s:'busy'};
+  if(S.mode==='cloud'&&!S.serverNotes)return {t:'서버에서 글을 불러오는 중… 오래 걸리면 서버 문제일 수 있어요',s:'busy'};
   return {t:'모든 기기와 동기화됨',s:'ok'};
 }
 function renderAccount(){
@@ -1570,6 +1572,7 @@ function startSession(u){
   S.view='list';
   showGate(null);
   loadEditor();renderAll();
+  setTimeout(function(){if(S.mode==='cloud'&&!S.serverNotes){renderAccount();renderList()}},8000);
   unsubSettings=backend.subscribeSettings(u.uid,onSettingsSnap,onSubErr);
   unsubNotes=backend.subscribeNotes(u.uid,onRemote,onSubErr);
 }
