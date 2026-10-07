@@ -113,8 +113,6 @@ svg{display:block;flex:none}
 
 /* writing page */
 .ed{position:relative;background:var(--bg);padding:6px 14px calc(32px + env(safe-area-inset-bottom,0px))}
-.ed.has-bk .ed-bar,.ed.has-bk .ed-bar .icon,.ed.has-bk .ed-bar .stat,.ed.has-bk .ed-bar .save{color:var(--edfg)}
-.ed.has-bk .ed-bar .cntbtn,.ed.has-bk .ed-bar .fontbtn{color:var(--ink)}
 .ed-card{flex:1;min-height:0;display:flex;flex-direction:column;position:relative}
 .ed-card .ed-scroll{padding-top:14px;flex:1;width:100%;max-width:820px;margin-inline:auto;background:var(--paper);border:1px solid var(--line);border-radius:20px;box-shadow:0 4px 18px rgba(0,0,0,.07)}
 @media (max-width:520px){.ed{padding:4px 10px calc(22px + env(safe-area-inset-bottom,0px))}.ed-card .ed-scroll{border-radius:16px}}
@@ -882,7 +880,7 @@ function renderList(){
 function renderBar(){
   var n=active();
   var eb=n?bookById(cardBookId(n)):null,edEl=$('ed');
-  if(eb){edEl.style.background='linear-gradient(135deg,'+eb.c1+','+eb.c2+')';edEl.style.setProperty('--edfg',readableOn(eb.c1,eb.c2));edEl.classList.add('has-bk')}
+  if(eb){edEl.style.background='linear-gradient(135deg,color-mix(in srgb,'+eb.c1+' 42%,var(--bg)),color-mix(in srgb,'+eb.c2+' 42%,var(--bg)))';edEl.classList.add('has-bk')}
   else{edEl.style.background='';edEl.style.removeProperty('--edfg');edEl.classList.remove('has-bk')}
   $('fontName').textContent=n?fontById(n.font).name:'글꼴';
   $('btnFont').disabled=!n;
