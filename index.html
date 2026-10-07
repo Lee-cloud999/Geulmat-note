@@ -292,15 +292,12 @@ svg{display:block;flex:none}
 .bb-back,.bb-btn{display:grid;place-items:center;width:32px;height:32px;padding:0;border:0;border-radius:10px;background:none;color:var(--ink2);cursor:pointer}
 .bb-btns{gap:2px}
 .notes>li.sec-head{display:flex;align-items:center;justify-content:space-between;grid-column:1/-1;list-style:none;margin:14px 0 2px;padding-top:12px;border-top:1px solid var(--line);font-size:13px;font-weight:700;color:var(--ink2)}
+/* no scrollbars anywhere (scrolling still works) */
+*{scrollbar-width:none;-ms-overflow-style:none}
+*::-webkit-scrollbar{display:none;width:0;height:0}
 /* drawer: no scrollbar */
 .side,.tree{scrollbar-width:none}
 .side::-webkit-scrollbar,.tree::-webkit-scrollbar{display:none;width:0;height:0}
-/* main screen scrollbars: white, no arrows */
-.notes::-webkit-scrollbar,.tags::-webkit-scrollbar{width:12px}
-.notes::-webkit-scrollbar-track,.tags::-webkit-scrollbar-track{background:transparent}
-.notes::-webkit-scrollbar-thumb,.tags::-webkit-scrollbar-thumb{background:#fff;border:3px solid transparent;background-clip:content-box;border-radius:999px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.06)}
-.notes::-webkit-scrollbar-button,.tags::-webkit-scrollbar-button{display:none;width:0;height:0}
-@supports not selector(::-webkit-scrollbar){.notes,.tags{scrollbar-width:thin;scrollbar-color:#fff transparent}}
 .ed-card .ed-scroll{scrollbar-width:none;-ms-overflow-style:none}
 .ed-card .ed-scroll::-webkit-scrollbar{display:none;width:0;height:0}
 @media (min-width:641px){.app .lst,.app[data-dock="1"] .lst{padding-inline:36px}}
