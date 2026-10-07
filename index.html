@@ -285,8 +285,10 @@ svg{display:block;flex:none}
 .bb-count{font-size:12px;color:var(--ink2);background:var(--soft);border-radius:999px;padding:2px 9px}
 .bb-back,.bb-btn{display:grid;place-items:center;width:32px;height:32px;padding:0;border:0;border-radius:10px;background:none;color:var(--ink2);cursor:pointer}
 .bb-btns{gap:2px}
-.notes>li.sec-head{display:block;grid-column:1/-1;list-style:none;margin:14px 0 2px;padding-top:12px;border-top:1px solid var(--line);font-size:13px;font-weight:700;color:var(--ink2)}
-.sec-head span{font-weight:400;margin-left:4px}
+.notes>li.sec-head{display:flex;align-items:center;justify-content:space-between;grid-column:1/-1;list-style:none;margin:14px 0 2px;padding-top:12px;border-top:1px solid var(--line);font-size:13px;font-weight:700;color:var(--ink2)}
+.lst-new{border:1px solid var(--line);background:var(--paper);color:var(--accent);border-radius:999px;padding:4px 12px;font-size:12px;font-weight:700;cursor:pointer}
+.lst-new:hover{background:var(--soft)}
+.lst-title{align-items:center;font-size:13px}
 .bb-back:hover,.bb-btn:hover{background:var(--soft);color:var(--ink)}
 .bookpop{position:absolute;top:50px;right:12px;z-index:30;min-width:210px;max-width:calc(100% - 24px);max-height:60vh;overflow:auto;padding:6px;background:var(--paper);border:1px solid var(--line);border-radius:12px;box-shadow:0 14px 36px rgba(0,0,0,.2)}
 .bookpop button{display:flex;align-items:center;gap:8px;width:100%;padding:9px 10px;border:0;border-radius:8px;background:none;text-align:left;cursor:pointer}
@@ -851,7 +853,8 @@ function renderList(){
   var v=visible();
   if(S.trash){renderTrash(v);return}
   var title=S.tag?'#'+esc(S.tag):(S.q.trim()?'검색 결과':(S.book?'이 노트의 글':'노트에 넣지 않은 글'));
-  $('lstTitle').innerHTML='<span>'+title+'</span><span>'+v.length+'개</span>';
+  var nb=(!S.tag&&!S.q.trim())?'<button type="button" class="lst-new" data-newin="'+(S.book?esc(S.book):'_')+'">+ 새 글</button>':'';
+  $('lstTitle').innerHTML='<span>'+title+' · '+v.length+'개</span>'+nb;
   if(!v.length){
     var msg=S.q.trim()?'찾은 글이 없어요.':(S.tag?'이 태그가 붙은 글이 없어요.':(S.book?'이 노트에 글이 없어요. 오른쪽 위의 + 새 글로 시작해 보세요.':(books().length?'노트에 넣지 않은 글이 없어요.':'아직 글이 없어요. 오른쪽 위의 + 새 글로 시작해 보세요.')));
     if(!(S.book&&!S.tag&&!S.q.trim())){
@@ -862,7 +865,7 @@ function renderList(){
   var html=v.length?v.map(noteHtml).join(''):'<li class="none" style="grid-column:1/-1">'+'이 노트에 글이 없어요. 오른쪽 위의 + 새 글로 시작해 보세요.'+'</li>';
   if(S.book&&!S.tag&&!S.q.trim()){
     var lo=sortCards(liveNotes().filter(function(n){return !cardBookId(n)}));
-    if(lo.length)html+='<li class="sec-head">노트에 넣지 않은 글 <span>'+lo.length+'개</span></li>'+lo.map(noteHtml).join('');
+    if(lo.length)html+='<li class="sec-head"><span>노트에 넣지 않은 글 · '+lo.length+'개</span><button type="button" class="lst-new" data-newin="_">+ 새 글</button></li>'+lo.map(noteHtml).join('');
   }
   $('notes').innerHTML=html;
 }
@@ -1820,12 +1823,14 @@ function selectNote(id){
   if(narrow())S.view='edit';
   loadEditor();renderAll();
 }
-function newNote(){
+function newNote(target){
+  if(typeof target!=='string')target=undefined;
   S.trash=false;
   pruneEmpty(null);
   var t=Date.now();
   var n={id:'n'+t.toString(36)+Math.random().toString(36).slice(2,6),title:'',body:S.tag?'\n\n#'+S.tag:'',font:S.settings.defaultFont,pinned:false,createdAt:t,updatedAt:t};
-  if(S.book&&bookById(S.book))n.bookId=S.book;
+  var tb=target===undefined?S.book:(target==='_'?null:target);
+  if(tb&&bookById(tb))n.bookId=tb;
   S.notes.push(n);dirty.add(n.id);
   S.q='';$('q').value='';
   S.activeId=n.id;S.armDel=false;
@@ -1996,6 +2001,7 @@ function closePop(){
 }
 
 /* ---------- events ---------- */
+document.addEventListener('click',function(e){var ni=e.target.closest&&e.target.closest('[data-newin]');if(ni){e.stopPropagation();newNote(ni.getAttribute('data-newin'))}},true);
 $('notes').addEventListener('click',function(e){
   var pm=e.target.closest('[data-pin]');
   if(pm){
