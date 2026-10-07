@@ -454,6 +454,7 @@ svg{display:block;flex:none}
       <div class="foot-btns">
         <button class="linkbtn" id="btnBackup" type="button">백업 받기</button>
         <button class="linkbtn" id="btnRestore" type="button">백업 불러오기</button>
+        <button class="linkbtn" id="btnTutorial" type="button">튜토리얼 다시 불러오기</button>
         <button class="linkbtn" id="btnGoCloud" type="button" hidden>로그인하고 동기화</button>
         <button class="linkbtn" id="btnInstall" type="button" hidden>앱으로 설치</button>
         <button class="linkbtn" id="btnLic" type="button">글꼴 · 오픈소스 라이선스</button>
@@ -1600,7 +1601,7 @@ function localNotesToMove(){
   if(!d||!Array.isArray(d.notes))return [];
   return d.notes.filter(function(n){
     if(!n||typeof n!=='object'||isEmpty(n)||n.deletedAt)return false;
-    return !(/^welcome-\d$/.test(n.id)&&n.updatedAt===n.createdAt);
+    return !(/^welcome-\d(-\w+)?$/.test(n.id)&&n.updatedAt===n.createdAt);
   });
 }
 function maybeOfferMove(){
@@ -1965,6 +1966,23 @@ function deleteActive(){
   if(narrow())S.view='list';
   loadEditor();renderAll();
 }
+function reloadTutorial(){
+  if(!window.confirm('"사용 안내" 글을 최신 내용으로 바꿔요.\n예전 안내 글은 휴지통으로 가고, 내가 쓴 글은 그대로예요. 계속할까요?'))return;
+  var now=Date.now();
+  var olds=[];
+  S.notes.forEach(function(n){
+    if(!n.deletedAt&&/^welcome-\d(-\w+)?$/.test(n.id)){n.deletedAt=now;n.updatedAt=now;olds.push(n.id);dirty.add(n.id)}
+  });
+  var sfx='-'+now.toString(36);
+  var fresh=welcome();
+  fresh.forEach(function(w){w.id=w.id+sfx;S.notes.push(w);dirty.add(w.id)});
+  if(!bookById('welcome-book')){books().push(welcomeBook());S.booksDirty=true;saveSettings()}
+  olds.concat(fresh.map(function(w){return w.id})).forEach(flush);
+  S.trash=false;S.tag=null;S.q='';$('q').value='';
+  ensureActive();renderAll();
+  flash('사용 안내를 최신 내용으로 바꿨어요.');
+}
+$('btnTutorial').addEventListener('click',function(){reloadTutorial()});
 var bkEdit=null;
 function bkPreview(){
   var b={c1:bkEdit.c1,c2:bkEdit.c2};
