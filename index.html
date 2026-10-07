@@ -273,6 +273,13 @@ svg{display:block;flex:none}
 .bb-title{flex:1;min-width:0;font-family:var(--brand);font-weight:700;font-size:20px;overflow-wrap:anywhere}
 .bb-btns{display:flex;gap:8px}
 .bb-btn{border:0;border-radius:999px;padding:5px 12px;background:rgba(255,255,255,.28);color:inherit;cursor:pointer;font-size:13px}
+.bookbar{flex-wrap:nowrap;gap:8px;padding:8px 12px;margin-bottom:10px}
+.bookbar .bb-emoji{font-size:22px}
+.bookbar .bb-title{font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;overflow-wrap:normal}
+.bb-back,.bb-btn{padding:3px 10px;font-size:12px;white-space:nowrap}
+.bb-btns{gap:6px}
+.notes>li.sec-head{display:block;grid-column:1/-1;list-style:none;margin:14px 0 2px;padding-top:12px;border-top:1px solid var(--line);font-size:13px;font-weight:700;color:var(--ink2)}
+.sec-head span{font-weight:400;margin-left:4px}
 .bb-back:hover,.bb-btn:hover{background:rgba(255,255,255,.45)}
 .bookpop{position:absolute;top:50px;right:12px;z-index:30;min-width:210px;max-width:calc(100% - 24px);max-height:60vh;overflow:auto;padding:6px;background:var(--paper);border:1px solid var(--line);border-radius:12px;box-shadow:0 14px 36px rgba(0,0,0,.2)}
 .bookpop button{display:flex;align-items:center;gap:8px;width:100%;padding:9px 10px;border:0;border-radius:8px;background:none;text-align:left;cursor:pointer}
@@ -798,7 +805,7 @@ function renderShelf(){
   }
   if(b){
     $('bookBar').setAttribute('style',coverStyle(b));
-    $('bookBar').innerHTML='<button type="button" class="bb-back" data-bookhome="1" title="글을 여기로 끌어 놓으면 노트에서 빠져요">✕ 선택 해제</button><span class="bb-emoji">'+esc(b.emoji)+'</span><span class="bb-title">'+esc(b.title||'새 노트')+'</span><span class="bb-btns"><button type="button" class="bb-btn" data-bookedit="1">커버 바꾸기</button><button type="button" class="bb-btn" data-bookdel="1">노트 지우기</button></span>';
+    $('bookBar').innerHTML='<button type="button" class="bb-back" data-bookhome="1" title="선택 해제 (글을 여기로 끌어 놓으면 노트에서 빠져요)" aria-label="선택 해제">✕</button><span class="bb-emoji">'+esc(b.emoji)+'</span><span class="bb-title">'+esc(b.title||'새 노트')+'</span><span class="bb-btns"><button type="button" class="bb-btn" data-bookedit="1" title="커버 바꾸기">커버</button><button type="button" class="bb-btn" data-bookdel="1" title="노트 지우기">삭제</button></span>';
   }
 }
 function renderTree(){
@@ -831,14 +838,19 @@ function renderList(){
   renderShelf();
   var v=visible();
   if(S.trash){renderTrash(v);return}
-  var title=S.tag?'#'+esc(S.tag):(S.q.trim()?'검색 결과':(S.book?'글':'노트에 넣지 않은 글'));
+  var title=S.tag?'#'+esc(S.tag):(S.q.trim()?'검색 결과':(S.book?'이 노트의 글':'노트에 넣지 않은 글'));
   $('lstTitle').innerHTML='<span>'+title+'</span><span>'+v.length+'개</span>';
   if(!v.length){
     var msg=S.q.trim()?'찾은 글이 없어요.':(S.tag?'이 태그가 붙은 글이 없어요.':(S.book?'이 노트에 글이 없어요. 오른쪽 위의 + 새 글로 시작해 보세요.':(books().length?'노트에 넣지 않은 글이 없어요.':'아직 글이 없어요. 오른쪽 위의 + 새 글로 시작해 보세요.')));
     $('notes').innerHTML='<li class="none">'+msg+'</li>';
     return;
   }
-  $('notes').innerHTML=v.map(noteHtml).join('');
+  var html=v.map(noteHtml).join('');
+  if(S.book&&!S.tag&&!S.q.trim()){
+    var lo=sortCards(liveNotes().filter(function(n){return !cardBookId(n)}));
+    if(lo.length)html+='<li class="sec-head">노트에 넣지 않은 글 <span>'+lo.length+'개</span></li>'+lo.map(noteHtml).join('');
+  }
+  $('notes').innerHTML=html;
 }
 function renderBar(){
   var n=active();
