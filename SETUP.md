@@ -29,3 +29,9 @@
 ## Google로 로그인 켜기
 1. Firebase 콘솔 → Authentication → 로그인 방법 → "Google" 선택 → 사용 설정 → 프로젝트 지원 이메일 고르고 저장
 2. Authentication → 설정 → 승인된 도메인 → "도메인 추가"로 `lee-cloud999.github.io` 추가
+
+### 아이패드/아이폰 사파리에서 Google 로그인이 오류날 때
+사파리는 사이트끼리 저장 공간을 나눠서 기본 방식(팝업/이동)이 "missing initial state" 오류로 끊길 수 있어요. 그럴 땐 구글 로그인 버튼 방식을 써요.
+1. Firebase 콘솔 → Authentication → 로그인 방법 → Google → "웹 SDK 구성"의 **웹 클라이언트 ID** 복사
+2. Google Cloud 콘솔 → API 및 서비스 → 사용자 인증 정보 → "Web client (auto created by Google Service)" → **승인된 자바스크립트 원본**에 `https://lee-cloud999.github.io` 추가
+3. `firebase-config.js`에 `googleClientId: "복사한 ID"` 한 줄 추가
