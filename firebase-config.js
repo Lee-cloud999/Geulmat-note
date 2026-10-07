@@ -9,5 +9,6 @@ window.GULMAT_FIREBASE = {
   projectId: "geulmat-note",
   storageBucket: "geulmat-note.firebasestorage.app",
   messagingSenderId: "374295180224",
-  appId: "1:374295180224:web:4acbc052cd306319a40e25"
+  appId: "1:374295180224:web:4acbc052cd306319a40e25",
+  googleClientId: "374295180224-s0haksleldjcm3gio62urmkeebm1f96q.apps.googleusercontent.com"
 };
