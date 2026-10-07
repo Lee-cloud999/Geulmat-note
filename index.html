@@ -279,14 +279,15 @@ svg{display:block;flex:none}
 .bb-title{flex:1;min-width:0;font-family:var(--brand);font-weight:700;font-size:20px;overflow-wrap:anywhere}
 .bb-btns{display:flex;gap:8px}
 .bb-btn{border:0;border-radius:999px;padding:5px 12px;background:rgba(255,255,255,.28);color:inherit;cursor:pointer;font-size:13px}
-.bookbar{flex-wrap:nowrap;gap:8px;padding:8px 12px;margin-bottom:10px}
-.bookbar .bb-emoji{font-size:22px}
+.bookbar{flex-wrap:nowrap;gap:10px;padding:8px 8px 8px 10px;margin-bottom:10px;background:var(--paper);border:1px solid var(--line);border-radius:14px;box-shadow:none;color:var(--ink)}
+.bookbar .bb-emoji{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;font-size:19px;box-shadow:inset 3px 0 0 rgba(0,0,0,.12)}
 .bookbar .bb-title{font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;overflow-wrap:normal}
-.bb-back,.bb-btn{padding:3px 10px;font-size:12px;white-space:nowrap}
-.bb-btns{gap:6px}
+.bb-count{font-size:12px;color:var(--ink2);background:var(--soft);border-radius:999px;padding:2px 9px}
+.bb-back,.bb-btn{display:grid;place-items:center;width:32px;height:32px;padding:0;border:0;border-radius:10px;background:none;color:var(--ink2);cursor:pointer}
+.bb-btns{gap:2px}
 .notes>li.sec-head{display:block;grid-column:1/-1;list-style:none;margin:14px 0 2px;padding-top:12px;border-top:1px solid var(--line);font-size:13px;font-weight:700;color:var(--ink2)}
 .sec-head span{font-weight:400;margin-left:4px}
-.bb-back:hover,.bb-btn:hover{background:rgba(255,255,255,.45)}
+.bb-back:hover,.bb-btn:hover{background:var(--soft);color:var(--ink)}
 .bookpop{position:absolute;top:50px;right:12px;z-index:30;min-width:210px;max-width:calc(100% - 24px);max-height:60vh;overflow:auto;padding:6px;background:var(--paper);border:1px solid var(--line);border-radius:12px;box-shadow:0 14px 36px rgba(0,0,0,.2)}
 .bookpop button{display:flex;align-items:center;gap:8px;width:100%;padding:9px 10px;border:0;border-radius:8px;background:none;text-align:left;cursor:pointer}
 .bookpop button:hover,.bookpop button[aria-pressed="true"]{background:var(--soft)}
@@ -325,7 +326,7 @@ svg{display:block;flex:none}
 .notes>li.dragging{opacity:.4}
 .drop-ok{outline:3px dashed var(--accent)!important;outline-offset:3px;transform:scale(1.03)}
 .tr-row.drop-ok,.tr-head.drop-ok{outline-offset:-2px;transform:none;background:var(--soft)}
-.bb-back.drop-ok{background:rgba(255,255,255,.6)}
+.bb-back.drop-ok{background:var(--soft);outline:2px solid var(--accent)}
 .drop-before{box-shadow:-5px 0 0 var(--accent)}
 .drop-after{box-shadow:5px 0 0 var(--accent)}
 .drop-above{box-shadow:0 -3px 0 var(--accent)}
@@ -814,8 +815,9 @@ function renderShelf(){
     }).join('')+'<button type="button" class="cover add" data-newbook="1"><span class="plus">+</span><span>새 노트 만들기</span></button>';
   }
   if(b){
-    $('bookBar').setAttribute('style',coverStyle(b));
-    $('bookBar').innerHTML='<button type="button" class="bb-back" data-bookhome="1" title="선택 해제 (글을 여기로 끌어 놓으면 노트에서 빠져요)" aria-label="선택 해제">✕</button><span class="bb-emoji">'+esc(b.emoji)+'</span><span class="bb-title">'+esc(b.title||'새 노트')+'</span><span class="bb-btns"><button type="button" class="bb-btn" data-bookedit="1" title="커버 바꾸기">커버</button><button type="button" class="bb-btn" data-bookdel="1" title="노트 지우기">삭제</button></span>';
+    $('bookBar').setAttribute('style','--bk1:'+b.c1+';--bk2:'+b.c2);
+    var ic=function(p){return '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+p+'</svg>'};
+    $('bookBar').innerHTML='<span class="bb-emoji" style="'+coverStyle(b)+'">'+esc(b.emoji)+'</span><span class="bb-title">'+esc(b.title||'새 노트')+'</span><span class="bb-count">'+bookCount(b.id)+'</span><span class="bb-btns"><button type="button" class="bb-btn" data-bookedit="1" title="커버 바꾸기" aria-label="커버 바꾸기">'+ic('<path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>')+'</button><button type="button" class="bb-btn" data-bookdel="1" title="노트 지우기" aria-label="노트 지우기">'+ic('<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>')+'</button><button type="button" class="bb-back" data-bookhome="1" title="선택 해제 (글을 여기로 끌어 놓으면 노트에서 빠져요)" aria-label="선택 해제">'+ic('<path d="M6 6l12 12M18 6L6 18"/>')+'</button></span>';
   }
 }
 function renderTree(){
