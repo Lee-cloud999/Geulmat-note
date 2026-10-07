@@ -197,6 +197,8 @@ svg{display:block;flex:none}
 .icon.only-narrow{display:inline-flex}
 .side{border-right:1px solid var(--line)}
 .app[data-view="tags"] .side{display:flex;position:fixed;top:env(safe-area-inset-top,0px);bottom:0;left:0;z-index:40;width:min(300px,86vw);box-shadow:0 0 40px rgba(0,0,0,.25)}
+.app[data-view="tags"][data-from="edit"] .ed{display:flex}
+.app[data-view="tags"][data-from="edit"] .lst{display:none}
 .app[data-view="tags"]::after{content:"";position:fixed;inset:0;z-index:35;background:rgba(0,0,0,.35)}
 .side-foot{margin-top:auto;border-top:1px solid var(--line);padding-bottom:16px}
 .lst{background:var(--bg);border-right:0;padding-inline:20px}
@@ -437,6 +439,7 @@ svg{display:block;flex:none}
   <main class="pane ed" id="ed">
     <header class="ed-bar">
       <button class="icon only-narrow" id="btnBack" type="button" aria-label="노트 목록으로"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <button class="icon" id="btnMenuEd" type="button" aria-label="메뉴 열기"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
       <div class="grow stat">
         <button class="cntbtn" id="count" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="cntPop" title="글자수 자세히 보기"></button>
         <span class="save" id="saveState" role="status" data-s="ok"></span>
@@ -916,7 +919,8 @@ function flash(msg){
   clearTimeout(flashTimer);
   flashTimer=setTimeout(function(){S.flash='';renderAccount()},6000);
 }
-function applyView(){$('app').dataset.view=S.view}
+function applyView(){if(S.view!=='tags')S.from=null;$('app').dataset.view=S.view;$('app').dataset.from=S.from||''}
+function closeDrawer(){S.view=(S.from==='edit'&&S.activeId)?'edit':'list';applyView()}
 function renderAll(){
   renderTags();renderList();renderTree();renderBar();renderMeta();renderAccount();applyView();
 }
@@ -1842,7 +1846,7 @@ function openBookModal(id){
   $('bkPal').innerHTML=BK_GRADS.map(function(x,i){return '<button type="button" data-g="'+i+'" style="background:linear-gradient(135deg,'+x[0]+','+x[1]+')" aria-label="'+BK_NAMES[i]+'" title="'+BK_NAMES[i]+'"></button>'}).join('');
   $('bkEmojis').innerHTML=BK_EMOJIS.map(function(e){return '<button type="button" data-e="'+e+'">'+e+'</button>'}).join('');
   bkPreview();
-  S.view==='tags'&&(S.view='list',applyView());
+  S.view==='tags'&&closeDrawer();
   $('bkWrap').hidden=false;
   $('bkTitle').focus();
 }
@@ -2010,10 +2014,11 @@ $('q').addEventListener('input',function(){
 });
 $('btnNew').addEventListener('click',newNote);
 $('btnNew2').addEventListener('click',newNote);
-$('btnTags').addEventListener('click',function(){S.view='tags';applyView()});
-$('btnSideBack').addEventListener('click',function(){S.view='list';applyView()});
-$('app').addEventListener('click',function(e){if(e.target===$('app')&&S.view==='tags'){S.view='list';applyView()}});
-document.addEventListener('keydown',function(e){if(e.key==='Escape'&&S.view==='tags'&&$('licWrap').hidden){S.view='list';applyView()}});
+$('btnTags').addEventListener('click',function(){S.from=null;S.view='tags';applyView()});
+$('btnMenuEd').addEventListener('click',function(){closePop();S.from='edit';S.view='tags';applyView()});
+$('btnSideBack').addEventListener('click',closeDrawer);
+$('app').addEventListener('click',function(e){if(e.target===$('app')&&S.view==='tags')closeDrawer()});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&S.view==='tags'&&$('licWrap').hidden)closeDrawer()});
 $('btnBack').addEventListener('click',function(){
   closePop();
   var id=S.activeId;
