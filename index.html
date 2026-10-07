@@ -809,7 +809,7 @@ function renderShelf(){
   $('bookBar').hidden=!b;
   if(home){
     $('shelf').innerHTML=books().map(function(k){
-      return '<button type="button" class="cover'+(S.book===k.id?' sel':'')+'" aria-pressed="'+(S.book===k.id)+'" draggable="true" data-book="'+esc(k.id)+'" style=""'+coverStyle(k)+'"><span class="cv-emoji">'+esc(k.emoji)+'</span><span class="cv-title">'+esc(k.title||'새 노트')+'</span><span class="cv-cnt">글 '+bookCount(k.id)+'개</span></button>';
+      return '<button type="button" class="cover'+(S.book===k.id?' sel':'')+'" aria-pressed="'+(S.book===k.id)+'" draggable="true" data-book="'+esc(k.id)+'" style="'+coverStyle(k)+'"><span class="cv-emoji">'+esc(k.emoji)+'</span><span class="cv-title">'+esc(k.title||'새 노트')+'</span><span class="cv-cnt">글 '+bookCount(k.id)+'개</span></button>';
     }).join('')+'<button type="button" class="cover add" data-newbook="1"><span class="plus">+</span><span>새 노트 만들기</span></button>';
   }
   if(b){
