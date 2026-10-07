@@ -456,7 +456,7 @@ svg{display:block;flex:none}
       <div class="fld"><label for="bkTitle">노트 이름</label><input id="bkTitle" maxlength="40" autocomplete="off"></div>
       <div class="fld"><label for="bkEmoji">커버 이모지 (직접 입력해도 돼요)</label><input id="bkEmoji" maxlength="8" autocomplete="off"></div>
       <div class="bk-emojis" id="bkEmojis"></div>
-      <div class="bk-lbl">커버 색 (아이보리 · 웜그레이 · 스모키 블루 · 탁한 세이지 · 말린 장미 · 짙은 네이비)</div>
+      <div class="bk-lbl">커버 색 (아이보리 · 웜그레이 · 스모키 블루 · 탁한 세이지 · 말린 장미 · 뮤트 라벤더)</div>
       <div class="bk-pal" id="bkPal"></div>
       <div class="bk-custom"><label>시작색 <input type="color" id="bkC1"></label><label>끝색 <input type="color" id="bkC2"></label></div>
       <div class="bk-btns"><button class="btn" id="bkSave" type="button">저장</button><button class="btn ghost" id="bkCancel" type="button">취소</button></div>
@@ -618,8 +618,8 @@ function active(){
   for(var i=0;i<S.notes.length;i++){if(S.notes[i].id===S.activeId)return S.notes[i]}
   return null;
 }
-var BK_GRADS=[['#F3EBDD','#E4D9C3'],['#B1AAA2','#958D85'],['#91AFC1','#7F9DB0'],['#9CA893','#80907A'],['#C6A09D','#A98482'],['#243247','#35465F']];
-var BK_NAMES=['아이보리','웜그레이','스모키 블루','탁한 세이지','말린 장미','짙은 네이비'];
+var BK_GRADS=[['#F3EBDD','#E4D9C3'],['#B1AAA2','#958D85'],['#91AFC1','#7F9DB0'],['#9CA893','#80907A'],['#C6A09D','#A98482'],['#9B95AA','#8A8499']];
+var BK_NAMES=['아이보리','웜그레이','스모키 블루','탁한 세이지','말린 장미','뮤트 라벤더'];
 var BK_EMOJIS='📓 📔 📕 📗 📘 📙 ✏️ 🌿 🌸 ☕ 🍳 🍰 🎵 📷 ✈️ 🏡 💡 ⭐ ❤️ 🐱 🐶 🌙 ☀️ 🔥'.split(' ');
 var HEX6=/^#[0-9a-fA-F]{6}$/;
 function sanitizeBook(x){
