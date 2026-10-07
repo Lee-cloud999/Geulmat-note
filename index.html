@@ -2035,19 +2035,23 @@ document.addEventListener('click',function(e){if(!$('acctPop').hidden&&!e.target
 document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!$('acctPop').hidden)closeAcct()});
 /* first-run hint: how to drag a card into a notebook (shown once, 5 seconds) */
 var HINT_KEY='geulmat:hint-dnd',hintDone=false;
-function maybeShowHint(){
-  if(hintDone||S.mode==='boot'||!$('gate').hidden)return;
-  if(S.mode==='cloud'&&!(S.serverNotes&&S.serverSettings&&S.seedDone))return;
-  hintDone=true;
-  try{if(localStorage.getItem(HINT_KEY))return;localStorage.setItem(HINT_KEY,'1')}catch(e){return}
+function showHint(delay){
   setTimeout(function(){
+    Array.prototype.forEach.call(document.querySelectorAll('.dnd-hint'),function(x){x.remove()});
     var el=document.createElement('div');
     el.className='dnd-hint';el.setAttribute('role','status');
     el.innerHTML='<div class="dh-stage" aria-hidden="true"><div class="dh-cover">🌱</div><div class="dh-card"><i></i><i></i><i></i></div><div class="dh-hand">👆</div></div><b>카드를 끌어서 노트에 넣어 보세요</b><span class="sub">카드를 길게 누른 채 노트 표지 위로 옮기면 돼요</span>'+(bookById('welcome-book')?'<span class="dh-go">📖 "사용 안내"를 클릭해 보세요</span>':'');
     document.body.appendChild(el);
     setTimeout(function(){el.classList.add('out')},4600);
     setTimeout(function(){el.remove()},5000);
-  },700);
+  },delay);
+}
+function maybeShowHint(){
+  if(hintDone||S.mode==='boot'||!$('gate').hidden)return;
+  if(S.mode==='cloud'&&!(S.serverNotes&&S.serverSettings&&S.seedDone))return;
+  hintDone=true;
+  try{if(localStorage.getItem(HINT_KEY))return;localStorage.setItem(HINT_KEY,'1')}catch(e){return}
+  showHint(700);
 }
 function reloadTutorial(){
   if(!window.confirm('"사용 안내" 글을 최신 내용으로 바꿔요.\n예전 안내 글은 휴지통으로 가고, 내가 쓴 글은 그대로예요. 계속할까요?'))return;
@@ -2064,6 +2068,7 @@ function reloadTutorial(){
   S.trash=false;S.tag=null;S.q='';$('q').value='';
   ensureActive();renderAll();
   flash('사용 안내를 최신 내용으로 바꿨어요.');
+  showHint(300);
 }
 $('btnTutorial').addEventListener('click',function(){reloadTutorial()});
 var bkEdit=null;
