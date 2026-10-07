@@ -348,9 +348,9 @@ svg{display:block;flex:none}
 
 .notes>li[draggable]{cursor:grab}
 .notes>li.dragging{opacity:.4}
-.drop-ok{outline:3px dashed var(--accent)!important;outline-offset:3px;transform:none!important}
-.tr-row.drop-ok,.tr-head.drop-ok{outline-offset:-2px;transform:none;background:var(--soft)}
-.bb-back.drop-ok{background:var(--soft);outline:2px solid var(--accent)}
+.drop-ok{outline:none!important;transform:none!important;filter:brightness(1.07)}
+.tr-row.drop-ok,.tr-head.drop-ok{background:var(--soft)}
+.bb-back.drop-ok{background:var(--soft)}
 .drop-before{box-shadow:-5px 0 0 var(--accent)}
 .drop-after{box-shadow:5px 0 0 var(--accent)}
 .drop-above{box-shadow:0 -3px 0 var(--accent)}
@@ -360,7 +360,7 @@ svg{display:block;flex:none}
 .tr-card[draggable],.tr-head[draggable]{cursor:grab}
 .dragging{opacity:.45}
 .notes>li[draggable],.tr-card,.tr-head[draggable],.cover[data-book]{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
-.drag-ghost{position:fixed;z-index:90;margin:0;pointer-events:none;opacity:.92;transform:scale(.97) rotate(-1.5deg);box-shadow:0 14px 34px rgba(0,0,0,.3);border-radius:12px;background:var(--paper)}
+.drag-ghost{position:fixed;z-index:90;margin:0;pointer-events:none;opacity:.92;transform:none;box-shadow:0 14px 34px rgba(0,0,0,.3);border-radius:12px;background:var(--paper)}
 .drag-ghost.cover{background-clip:padding-box}
 
 /* sign-in gate */
