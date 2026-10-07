@@ -290,6 +290,14 @@ svg{display:block;flex:none}
 .drop-ok{outline:3px dashed var(--accent)!important;outline-offset:3px;transform:scale(1.03)}
 .tr-row.drop-ok,.tr-head.drop-ok{outline-offset:-2px;transform:none;background:var(--soft)}
 .bb-back.drop-ok{background:rgba(255,255,255,.6)}
+.drop-before{box-shadow:-5px 0 0 var(--accent)}
+.drop-after{box-shadow:5px 0 0 var(--accent)}
+.drop-above{box-shadow:0 -3px 0 var(--accent)}
+.drop-below{box-shadow:0 3px 0 var(--accent)}
+.cover.drop-before{box-shadow:-5px 0 0 var(--accent),0 2px 8px rgba(0,0,0,.14)}
+.cover.drop-after{box-shadow:5px 0 0 var(--accent),0 2px 8px rgba(0,0,0,.14)}
+.tr-card[draggable],.tr-head[draggable]{cursor:grab}
+.dragging{opacity:.45}
 
 /* sign-in gate */
 .gate{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:24px 16px;background:var(--bg);overflow:auto}
@@ -563,14 +571,22 @@ function fontById(id){for(var i=0;i<FONTS.length;i++){if(FONTS[i].id===id)return
 
 var PIN_SM='<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-label="고정됨"><path d="M12 16v5M9 3h6l-1 6 3 3v2H7v-2l3-3z"/></svg>';
 
+function welcomeBook(){
+  var t=Date.now();
+  return {id:'welcome-book',title:'사용 안내',emoji:'🌱',c1:'#9CA893',c2:'#80907A',createdAt:t,updatedAt:t};
+}
 function welcome(){
   var t=Date.now();
   return [
-    {id:'welcome-1',title:'글맛노트에 오신 것을 환영해요',font:'gowun-batang',pinned:true,createdAt:t-3000,updatedAt:t-3000,
-     body:'위쪽의 Aa 버튼을 누르면 이 노트의 글꼴을 바꿀 수 있어요. 노트마다 다른 글꼴을 고를 수 있어서, 일기는 손글씨로, 메모는 고딕으로 써도 돼요.\n\n본문에 #시작 처럼 샵 기호를 붙여 쓰면 태그가 되고, 태그는 왼쪽 목록에 모여요. 오른쪽 위의 핀으로 노트를 맨 위에 고정할 수도 있어요.\n\n## 소제목\n줄 맨 앞에 ## 와 띄어쓰기를 쓰면 소제목이 돼요. 한 글에 몇 개든 넣을 수 있고, 위쪽 H 버튼으로 지금 줄을 소제목으로 바꿀 수 있어요. 소제목은 쓰는 동안에도 크게 보여요.\n\n## 어디서나\n같은 이메일로 로그인하면 PC, 휴대폰, 아이패드에서 같은 노트를 이어서 쓸 수 있어요.\n\n## 연습용 노트\n이 노트들은 연습용이에요. 지우고 시작해도 괜찮아요. #시작'},
-    {id:'welcome-2',title:'아침 메모',font:'pen',pinned:false,createdAt:t-2000,updatedAt:t-2000,
+    {id:'welcome-1',title:'글맛노트에 오신 것을 환영해요',font:'gowun-batang',pinned:true,createdAt:t-5000,updatedAt:t-5000,
+     body:'글마다 다른 글꼴로 쓸 수 있는 노트예요. 위쪽의 Aa 버튼을 누르면 이 글의 글꼴과 글자 크기를 바꿀 수 있어요. 일기는 손글씨로, 메모는 고딕으로 써도 돼요.\n\n## 태그\n본문에 #시작 처럼 샵 기호를 붙여 쓰면 태그가 돼요. 첫 화면 위쪽의 태그 칩을 누르면 같은 태그의 글만 모아 볼 수 있어요.\n\n## 소제목\n줄 맨 앞에 ## 와 띄어쓰기를 쓰면 소제목이 돼요. 위쪽 H 버튼으로 지금 줄을 소제목으로 바꿀 수도 있어요. 줄을 바꾸면 다시 본문이에요.\n\n## 더 알아보기\n첫 화면의 "사용 안내" 노트에 글을 노트로 묶는 법, 지우기와 백업, 동기화 설명이 있어요.\n\n## 연습용 글\n이 글들은 연습용이에요. 지우고 시작해도 괜찮아요. #시작'},
+    {id:'welcome-2',title:'노트로 글 묶기',font:'noto-sans',pinned:false,bookId:'welcome-book',createdAt:t-4000,updatedAt:t-4000,
+     body:'첫 화면 위쪽의 표지가 노트예요. "+ 새 노트 만들기"를 누르면 이름, 이모지, 커버 색을 정해서 만들 수 있어요. 만든 뒤에도 노트 안에서 "커버 바꾸기"로 언제든 바꿀 수 있어요.\n\n## 글을 노트에 넣는 법\n- 글 카드를 끌어서 노트 표지 위에 놓아요\n- 글을 연 상태에서 위쪽 폴더 버튼을 눌러 노트를 골라요\n- 노트 안에서 새 글을 쓰면 그 노트에 바로 들어가요\n\n## 메뉴로 한눈에\n왼쪽 위 ☰ 를 누르면 노트 목록이 열려요. 노트 이름을 누르면 안에 있는 글의 제목과 내용 일부가 펼쳐지고, 글을 누르면 바로 열려요.\n\n## 노트에서 빼기\n노트 안에서 글 카드를 끌어 위쪽 "‹ 홈" 버튼에 놓으면 노트에서 빠져요. 노트를 지워도 안의 글은 남아요. #시작'},
+    {id:'welcome-3',title:'지우기, 글자수, 백업',font:'noto-sans',pinned:false,bookId:'welcome-book',createdAt:t-3000,updatedAt:t-3000,
+     body:'## 지운 글은 휴지통으로\n글을 지우면 휴지통으로 가고 30일 동안 보관돼요. 첫 화면 위쪽 태그 줄 오른쪽의 "휴지통"에서 복원하거나 완전히 지울 수 있어요.\n\n## 글자수\n글 위쪽의 숫자를 누르면 공백 제외, 공백 포함 글자수와 마지막 수정 시각을 볼 수 있어요. 글을 드래그해서 고르면 고른 글자수가 보여요.\n\n## 백업\n☰ 메뉴 아래의 "백업 받기"로 모든 글과 노트를 파일로 저장할 수 있어요. "백업 불러오기"로 다시 가져와요.\n\n## 어디서나\n로그인하면 PC, 휴대폰, 아이패드에서 같은 글을 이어서 쓸 수 있어요. 로그인 없이 쓰면 이 기기에만 저장되고, 나중에 로그인하면 쓴 글을 계정으로 옮길 수 있어요. #정리'},
+    {id:'welcome-4',title:'아침 메모',font:'pen',pinned:false,createdAt:t-2000,updatedAt:t-2000,
      body:'창문 열고 커피 한 잔.\n오늘은 천천히 걷는 날.\n\n#일기'},
-    {id:'welcome-3',title:'이번 주 정리',font:'coding',pinned:false,createdAt:t-1000,updatedAt:t-1000,
+    {id:'welcome-5',title:'이번 주 정리',font:'coding',pinned:false,createdAt:t-1000,updatedAt:t-1000,
      body:'- 월  원고 초안\n- 수  자료 정리\n- 금  퇴고\n\n#정리'}
   ];
 }
@@ -646,6 +662,15 @@ function purgeTrash(){
   var cut=Date.now()-TRASH_DAYS*DAY;
   S.notes.slice().forEach(function(n){if(n.deletedAt&&n.deletedAt<cut)removeNote(n.id)});
 }
+function sortCards(a){
+  return a.sort(function(x,y){
+    var p=(y.pinned?1:0)-(x.pinned?1:0);if(p)return p;
+    var hx=typeof x.pos==='number',hy=typeof y.pos==='number';
+    if(hx&&hy&&x.pos!==y.pos)return x.pos-y.pos;
+    if(hx!==hy)return hx?1:-1;
+    return (y.updatedAt||0)-(x.updatedAt||0);
+  });
+}
 function visible(){
   var a=S.trash?trashed():liveNotes();
   if(S.book&&!bookById(S.book))S.book=null;
@@ -660,13 +685,14 @@ function visible(){
   var q=S.q.trim().toLowerCase();
   if(q){a=a.filter(function(n){return ((n.title||'')+'\n'+(n.body||'')).toLowerCase().indexOf(q)>=0})}
   if(S.trash)a.sort(function(x,y){return (y.deletedAt||0)-(x.deletedAt||0)});
-  else a.sort(function(x,y){return ((y.pinned?1:0)-(x.pinned?1:0))||((y.updatedAt||0)-(x.updatedAt||0))});
+  else sortCards(a);
   return a;
 }
 function noteDoc(n){
   var d={title:n.title||'',body:n.body||'',font:n.font||'gowun-batang',pinned:!!n.pinned,createdAt:n.createdAt||Date.now(),updatedAt:n.updatedAt||Date.now()};
   if(n.deletedAt)d.deletedAt=n.deletedAt;
   if(n.bookId)d.bookId=n.bookId;
+  if(typeof n.pos==='number')d.pos=n.pos;
   return d;
 }
 var rafId=0,rafFns=[];
@@ -732,7 +758,7 @@ function renderShelf(){
   $('bookBar').hidden=!b;
   if(home){
     $('shelf').innerHTML=books().map(function(k){
-      return '<button type="button" class="cover" data-book="'+esc(k.id)+'" style="'+coverStyle(k)+'"><span class="cv-emoji">'+esc(k.emoji)+'</span><span class="cv-title">'+esc(k.title||'새 노트')+'</span><span class="cv-cnt">글 '+bookCount(k.id)+'개</span></button>';
+      return '<button type="button" class="cover" draggable="true" data-book="'+esc(k.id)+'" style="'+coverStyle(k)+'"><span class="cv-emoji">'+esc(k.emoji)+'</span><span class="cv-title">'+esc(k.title||'새 노트')+'</span><span class="cv-cnt">글 '+bookCount(k.id)+'개</span></button>';
     }).join('')+'<button type="button" class="cover add" data-newbook="1"><span class="plus">+</span><span>새 노트 만들기</span></button>';
   }
   if(b){
@@ -744,22 +770,22 @@ function renderTree(){
   var out='<button type="button" class="tr-head" data-home="1" style="width:100%"><span class="tr-emoji">🏠</span><span class="tr-name">홈</span></button>';
   out+='<div class="tr-sec">노트</div>';
   function cardsOf(id){
-    return liveNotes().filter(function(n){return cardBookId(n)===id}).sort(function(x,y){return (y.updatedAt||0)-(x.updatedAt||0)});
+    return sortCards(liveNotes().filter(function(n){return cardBookId(n)===id}));
   }
   function cardsHtml(list){
     if(!list.length)return '<div class="tr-cards"><div class="tr-none">아직 글이 없어요.</div></div>';
     return '<div class="tr-cards">'+list.slice(0,40).map(function(n){
       var sn=(n.body||'').replace(/^#{1,3}[ \t]+/gm,'').replace(new RegExp(TAG_RE.source,'gu'),'$1').replace(/\s+/g,' ').trim().slice(0,60);
       var t=(n.title||'').trim();
-      return '<button type="button" class="tr-card" data-tcard="'+esc(n.id)+'"><b>'+esc(t||'제목 없음')+'</b><span>'+esc(sn||'내용 없음')+'</span></button>';
+      return '<button type="button" class="tr-card" draggable="true" data-tcard="'+esc(n.id)+'"><b>'+esc(t||'제목 없음')+'</b><span>'+esc(sn||'내용 없음')+'</span></button>';
     }).join('')+(list.length>40?'<div class="tr-none">…외 '+(list.length-40)+'개 (노트를 열어 보세요)</div>':'')+'</div>';
   }
   books().forEach(function(k){
     var open=!!S.treeOpen[k.id],list=open?cardsOf(k.id):null,cnt=bookCount(k.id);
-    out+='<div class="tr-row"><button type="button" class="tr-head" data-tbook="'+esc(k.id)+'" aria-expanded="'+open+'"><span class="tr-chev">▶</span><span class="tr-emoji" style="'+coverStyle(k)+'">'+esc(k.emoji)+'</span><span class="tr-name">'+esc(k.title||'새 노트')+'</span><span class="cnt">'+cnt+'</span></button><button type="button" class="tr-open" data-topen="'+esc(k.id)+'" aria-label="노트 열기">열기</button></div>';
+    out+='<div class="tr-row"><button type="button" class="tr-head" draggable="true" data-tbook="'+esc(k.id)+'" aria-expanded="'+open+'"><span class="tr-chev">▶</span><span class="tr-emoji" style="'+coverStyle(k)+'">'+esc(k.emoji)+'</span><span class="tr-name">'+esc(k.title||'새 노트')+'</span><span class="cnt">'+cnt+'</span></button><button type="button" class="tr-open" data-topen="'+esc(k.id)+'" aria-label="노트 열기">열기</button></div>';
     if(open)out+=cardsHtml(list);
   });
-  var loose=liveNotes().filter(function(n){return !cardBookId(n)}).sort(function(x,y){return (y.updatedAt||0)-(x.updatedAt||0)});
+  var loose=sortCards(liveNotes().filter(function(n){return !cardBookId(n)}));
   var lo=!!S.treeOpen._;
   out+='<div class="tr-row"><button type="button" class="tr-head" data-tbook="_" aria-expanded="'+lo+'"><span class="tr-chev">▶</span><span class="tr-emoji">📄</span><span class="tr-name">노트에 넣지 않은 글</span><span class="cnt">'+loose.length+'</span></button></div>';
   if(lo)out+=cardsHtml(loose);
@@ -1226,7 +1252,10 @@ function loadLocal(){
       if(d&&d.settings)mergeSettings(d.settings);
     }
   }catch(e){}
-  if(!found)S.notes=welcome();
+  if(!found){
+    S.notes=welcome();
+    if(!bookById('welcome-book'))books().push(welcomeBook());
+  }
 }
 function mergeSettings(s){
   if(typeof s.size==='number')S.settings.size=Math.max(SIZE_MIN,Math.min(SIZE_MAX,Math.round(s.size)));
@@ -1309,6 +1338,8 @@ function maybeSeed(){
   if(S.serverEmpty&&!S.settings.seeded){
     S.settings.seeded=true;
     welcome().forEach(function(w){S.notes.push(w);flush(w.id)});
+    if(!bookById('welcome-book'))books().push(welcomeBook());
+    S.booksDirty=true;
     saveSettings();
     ensureActive();renderAll();
   }else if(!S.serverEmpty&&!S.settings.seeded){
@@ -1325,7 +1356,7 @@ function onRemote(docs,meta){
   S.notes.forEach(function(n){
     if(dirty.has(n.id)||timers.has(n.id)){next.push(n);remote.delete(n.id);return}
     var r=remote.get(n.id);
-    if(r){next.push((r.updatedAt||0)>(n.updatedAt||0)?r:n);remote.delete(n.id)}
+    if(r){next.push((r.updatedAt||0)>=(n.updatedAt||0)?r:n);remote.delete(n.id)}
     else if(!n._saved){next.push(n)}
   });
   remote.forEach(function(r){next.push(r)});
@@ -1634,6 +1665,7 @@ function importBackup(file){
       var n={id:id,title:title,body:text,font:typeof x.font==='string'?x.font:S.settings.defaultFont,pinned:!!x.pinned,createdAt:+x.createdAt||t,updatedAt:+x.updatedAt||t};
       if(+x.deletedAt>0)n.deletedAt=+x.deletedAt;
       if(typeof x.bookId==='string'&&/^[A-Za-z0-9_\-]{1,60}$/.test(x.bookId))n.bookId=x.bookId;
+      if(typeof x.pos==='number')n.pos=x.pos;
       S.notes.push(n);flush(n.id);added++;
     });
     ensureActive();renderAll();
@@ -2058,17 +2090,10 @@ $('btnGoCloud').addEventListener('click',goCloud);
 $('moveYes').addEventListener('click',moveLocal);
 $('moveNo').addEventListener('click',function(){$('movePanel').hidden=true});
 $('btnBackup').addEventListener('click',exportBackup);
-var dragId=null,dragOpenTimer=0;
-function dropBookOf(t){
-  var el=t&&t.closest?t.closest('[data-book],[data-tbook],[data-bookhome]'):null;
-  if(!el)return null;
-  var bid;
-  if(el.hasAttribute('data-book'))bid=el.getAttribute('data-book');
-  else if(el.hasAttribute('data-tbook')){bid=el.getAttribute('data-tbook');if(bid==='_')bid=''}
-  else bid='';
-  return {el:el,bid:bid};
+var dragId=null,dragKind=null,dragOpenTimer=0;
+function clearDrop(){
+  Array.prototype.forEach.call(document.querySelectorAll('.drop-ok,.drop-before,.drop-after,.drop-above,.drop-below'),function(x){x.classList.remove('drop-ok','drop-before','drop-after','drop-above','drop-below')});
 }
-function clearDrop(){Array.prototype.forEach.call(document.querySelectorAll('.drop-ok'),function(x){x.classList.remove('drop-ok')})}
 function moveCardToBook(id,bid){
   var n=findNote(id);if(!n)return;
   if(bid&&!bookById(bid))return;
@@ -2080,22 +2105,92 @@ function moveCardToBook(id,bid){
   flash(b?'"'+(b.title||'새 노트')+'" 노트에 넣었어요.':'노트에서 뺐어요.');
   renderAll();
 }
-$('notes').addEventListener('dragstart',function(e){
-  var li=e.target.closest&&e.target.closest('li[data-card]');
-  if(!li)return;
-  dragId=li.getAttribute('data-card');
+function reorderCard(id,targetId,after){
+  var n=findNote(id),t=findNote(targetId);
+  if(!n||!t||n===t)return;
+  var bid=cardBookId(t);
+  var moved=(cardBookId(n)||'')!==(bid||'');
+  if(moved){if(bid)n.bookId=bid;else delete n.bookId;n.updatedAt=Date.now()}
+  var list=sortCards(liveNotes().filter(function(x){return (cardBookId(x)||'')===(bid||'')&&x!==n}));
+  var idx=list.indexOf(t);if(idx<0)idx=list.length;
+  list.splice(after?idx+1:idx,0,n);
+  list.forEach(function(x,i){
+    var np=i*10;
+    if(x.pos!==np||x===n){x.pos=np;flush(x.id)}
+  });
+  if(moved){var b=bookById(bid);flash(b?'"'+(b.title||'새 노트')+'" 노트에 넣었어요.':'노트에서 뺐어요.')}
+  renderAll();
+}
+function reorderBook(id,targetId,after){
+  if(id===targetId)return;
+  var arr=books(),b=bookById(id),t=bookById(targetId);
+  if(!b||!t)return;
+  arr.splice(arr.indexOf(b),1);
+  var idx=arr.indexOf(t);
+  arr.splice(after?idx+1:idx,0,b);
+  S.booksDirty=true;saveSettings();
+  renderAll();
+}
+/* what is under the pointer while dragging */
+function dropTarget(e){
+  var t=e.target;if(!t||!t.closest||!dragId)return null;
+  var el;
+  if(dragKind==='book'){
+    el=t.closest('[data-book]');
+    if(el&&el.getAttribute('data-book')!==dragId){
+      var r=el.getBoundingClientRect();
+      return {el:el,type:'reorderBook',id:el.getAttribute('data-book'),after:e.clientX>r.left+r.width/2,cls:['drop-before','drop-after']};
+    }
+    el=t.closest('[data-tbook]');
+    if(el&&el.getAttribute('data-tbook')!=='_'&&el.getAttribute('data-tbook')!==dragId){
+      var r2=el.getBoundingClientRect();
+      return {el:el,type:'reorderBook',id:el.getAttribute('data-tbook'),after:e.clientY>r2.top+r2.height/2,cls:['drop-above','drop-below']};
+    }
+    return null;
+  }
+  el=t.closest('[data-tcard]');
+  if(el&&el.getAttribute('data-tcard')!==dragId){
+    var r3=el.getBoundingClientRect();
+    return {el:el,type:'reorderCard',id:el.getAttribute('data-tcard'),after:e.clientY>r3.top+r3.height/2,cls:['drop-above','drop-below']};
+  }
+  el=t.closest('li[data-card]');
+  if(el&&el.getAttribute('data-card')!==dragId){
+    var r4=el.getBoundingClientRect();
+    return {el:el,type:'reorderCard',id:el.getAttribute('data-card'),after:e.clientX>r4.left+r4.width/2,cls:['drop-before','drop-after']};
+  }
+  el=t.closest('[data-book]');
+  if(el)return {el:el,type:'into',id:el.getAttribute('data-book'),cls:['drop-ok','drop-ok']};
+  el=t.closest('[data-tbook]');
+  if(el){var k=el.getAttribute('data-tbook');return {el:el,type:'into',id:k==='_'?'':k,cls:['drop-ok','drop-ok']}}
+  el=t.closest('[data-bookhome]');
+  if(el)return {el:el,type:'into',id:'',cls:['drop-ok','drop-ok']};
+  return null;
+}
+document.addEventListener('dragstart',function(e){
+  var el=e.target.closest&&e.target.closest('li[data-card],[data-tcard],[data-tbook],.cover[data-book]');
+  if(!el)return;
+  if(el.matches('li[data-card]')){dragKind='card';dragId=el.getAttribute('data-card')}
+  else if(el.hasAttribute('data-tcard')){dragKind='card';dragId=el.getAttribute('data-tcard')}
+  else if(el.hasAttribute('data-tbook')){
+    if(el.getAttribute('data-tbook')==='_'){e.preventDefault();return}
+    dragKind='book';dragId=el.getAttribute('data-tbook');
+  }else{dragKind='book';dragId=el.getAttribute('data-book')}
   try{e.dataTransfer.setData('text/plain',dragId);e.dataTransfer.effectAllowed='move'}catch(x){}
-  li.classList.add('dragging');
+  el.classList.add('dragging');
 });
-$('notes').addEventListener('dragend',function(){
-  dragId=null;clearDrop();clearTimeout(dragOpenTimer);
+document.addEventListener('dragend',function(){
+  dragId=null;dragKind=null;clearDrop();clearTimeout(dragOpenTimer);
   Array.prototype.forEach.call(document.querySelectorAll('.dragging'),function(x){x.classList.remove('dragging')});
 });
 document.addEventListener('dragover',function(e){
   if(!dragId)return;
-  var d=dropBookOf(e.target);
-  if(d){e.preventDefault();try{e.dataTransfer.dropEffect='move'}catch(x){}if(!d.el.classList.contains('drop-ok')){clearDrop();d.el.classList.add('drop-ok')}}
-  else clearDrop();
+  var d=dropTarget(e);
+  clearDrop();
+  if(d){
+    e.preventDefault();
+    try{e.dataTransfer.dropEffect='move'}catch(x){}
+    d.el.classList.add(d.type==='into'?'drop-ok':(d.after?d.cls[1]:d.cls[0]));
+  }
 });
 document.addEventListener('dragenter',function(e){
   if(!dragId)return;
@@ -2106,12 +2201,14 @@ document.addEventListener('dragenter',function(e){
 });
 document.addEventListener('drop',function(e){
   if(!dragId)return;
-  var d=dropBookOf(e.target);
+  var d=dropTarget(e);
   clearDrop();
   if(!d)return;
   e.preventDefault();
   var id=dragId;dragId=null;
-  moveCardToBook(id,d.bid);
+  if(d.type==='into')moveCardToBook(id,d.id);
+  else if(d.type==='reorderCard')reorderCard(id,d.id,d.after);
+  else reorderBook(id,d.id,d.after);
 });
 $('shelf').addEventListener('click',function(e){
   var b=e.target.closest('[data-book]');
