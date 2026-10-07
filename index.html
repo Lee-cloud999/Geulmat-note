@@ -239,7 +239,7 @@ svg{display:block;flex:none}
 .cover{position:relative;display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;gap:6px;aspect-ratio:3/4;padding:14px 12px 12px 18px;border:0;border-radius:6px 14px 14px 6px;text-align:left;cursor:pointer;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.14),inset 6px 0 0 rgba(0,0,0,.14);transition:transform .12s,box-shadow .12s}
 .cover:hover{transform:translateY(-3px);box-shadow:0 10px 22px rgba(0,0,0,.2),inset 6px 0 0 rgba(0,0,0,.14)}
 .cv-emoji{font-size:34px;line-height:1}
-.cv-title{font-family:var(--brand);font-weight:700;font-size:17px;line-height:1.3;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.cv-title{position:absolute;left:18px;right:12px;top:47%;transform:translateY(-50%);font-family:var(--brand);font-weight:700;font-size:17px;line-height:1.3;overflow-wrap:anywhere;word-break:keep-all;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .cv-cnt{font-size:12px;opacity:.85}
 .cover.add{align-items:center;justify-content:center;gap:8px;background:none;border:2px dashed var(--line);box-shadow:none;color:var(--ink2);text-align:center;padding:12px}
 .cover.add:hover{border-color:var(--accent);color:var(--accent);box-shadow:none}
@@ -272,7 +272,7 @@ svg{display:block;flex:none}
 .tr-card span{font-size:12px;color:var(--ink2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tr-none{padding:6px 10px;font-size:12px;color:var(--ink2)}
 .tr-new{margin:8px 0 0;width:100%;justify-content:center}
-.bk-prev{display:flex;flex-direction:column;justify-content:space-between;width:132px;aspect-ratio:3/4;margin:10px auto 14px;padding:14px 12px 12px 18px;border-radius:6px 14px 14px 6px;box-shadow:0 2px 8px rgba(0,0,0,.18),inset 6px 0 0 rgba(0,0,0,.14)}
+.bk-prev{position:relative;display:flex;flex-direction:column;justify-content:space-between;width:132px;aspect-ratio:3/4;margin:10px auto 14px;padding:14px 12px 12px 18px;border-radius:6px 14px 14px 6px;box-shadow:0 2px 8px rgba(0,0,0,.18),inset 6px 0 0 rgba(0,0,0,.14)}
 .bk-lbl{margin:12px 0 6px;font-size:12px;color:var(--ink2)}
 .bk-emojis{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin-top:8px}
 .bk-emojis button{height:36px;border:1px solid var(--line);border-radius:8px;background:var(--paper);font-size:18px;cursor:pointer}
@@ -456,7 +456,7 @@ svg{display:block;flex:none}
       <div class="fld"><label for="bkTitle">노트 이름</label><input id="bkTitle" maxlength="40" autocomplete="off"></div>
       <div class="fld"><label for="bkEmoji">커버 이모지 (직접 입력해도 돼요)</label><input id="bkEmoji" maxlength="8" autocomplete="off"></div>
       <div class="bk-emojis" id="bkEmojis"></div>
-      <div class="bk-lbl">커버 색 (아이보리 · 웜그레이 · 스모키 블루 · 탁한 세이지 · 말린 장미 · 뮤트 라벤더)</div>
+      <div class="bk-lbl">커버 색</div>
       <div class="bk-pal" id="bkPal"></div>
       <div class="bk-custom"><label>시작색 <input type="color" id="bkC1"></label><label>끝색 <input type="color" id="bkC2"></label></div>
       <div class="bk-btns"><button class="btn" id="bkSave" type="button">저장</button><button class="btn ghost" id="bkCancel" type="button">취소</button></div>
@@ -732,12 +732,12 @@ function renderShelf(){
   $('bookBar').hidden=!b;
   if(home){
     $('shelf').innerHTML=books().map(function(k){
-      return '<button type="button" class="cover" data-book="'+esc(k.id)+'" style="'+coverStyle(k)+'"><span class="cv-emoji">'+esc(k.emoji)+'</span><span class="cv-title">'+esc(k.title||'이름 없는 노트')+'</span><span class="cv-cnt">글 '+bookCount(k.id)+'개</span></button>';
+      return '<button type="button" class="cover" data-book="'+esc(k.id)+'" style="'+coverStyle(k)+'"><span class="cv-emoji">'+esc(k.emoji)+'</span><span class="cv-title">'+esc(k.title||'새 노트')+'</span><span class="cv-cnt">글 '+bookCount(k.id)+'개</span></button>';
     }).join('')+'<button type="button" class="cover add" data-newbook="1"><span class="plus">+</span><span>새 노트 만들기</span></button>';
   }
   if(b){
     $('bookBar').setAttribute('style',coverStyle(b));
-    $('bookBar').innerHTML='<button type="button" class="bb-back" data-bookhome="1" title="글을 여기로 끌어 놓으면 노트에서 빠져요">‹ 홈</button><span class="bb-emoji">'+esc(b.emoji)+'</span><span class="bb-title">'+esc(b.title||'이름 없는 노트')+'</span><span class="bb-btns"><button type="button" class="bb-btn" data-bookedit="1">커버 바꾸기</button><button type="button" class="bb-btn" data-bookdel="1">노트 지우기</button></span>';
+    $('bookBar').innerHTML='<button type="button" class="bb-back" data-bookhome="1" title="글을 여기로 끌어 놓으면 노트에서 빠져요">‹ 홈</button><span class="bb-emoji">'+esc(b.emoji)+'</span><span class="bb-title">'+esc(b.title||'새 노트')+'</span><span class="bb-btns"><button type="button" class="bb-btn" data-bookedit="1">커버 바꾸기</button><button type="button" class="bb-btn" data-bookdel="1">노트 지우기</button></span>';
   }
 }
 function renderTree(){
@@ -756,7 +756,7 @@ function renderTree(){
   }
   books().forEach(function(k){
     var open=!!S.treeOpen[k.id],list=open?cardsOf(k.id):null,cnt=bookCount(k.id);
-    out+='<div class="tr-row"><button type="button" class="tr-head" data-tbook="'+esc(k.id)+'" aria-expanded="'+open+'"><span class="tr-chev">▶</span><span class="tr-emoji" style="'+coverStyle(k)+'">'+esc(k.emoji)+'</span><span class="tr-name">'+esc(k.title||'이름 없는 노트')+'</span><span class="cnt">'+cnt+'</span></button><button type="button" class="tr-open" data-topen="'+esc(k.id)+'" aria-label="노트 열기">열기</button></div>';
+    out+='<div class="tr-row"><button type="button" class="tr-head" data-tbook="'+esc(k.id)+'" aria-expanded="'+open+'"><span class="tr-chev">▶</span><span class="tr-emoji" style="'+coverStyle(k)+'">'+esc(k.emoji)+'</span><span class="tr-name">'+esc(k.title||'새 노트')+'</span><span class="cnt">'+cnt+'</span></button><button type="button" class="tr-open" data-topen="'+esc(k.id)+'" aria-label="노트 열기">열기</button></div>';
     if(open)out+=cardsHtml(list);
   });
   var loose=liveNotes().filter(function(n){return !cardBookId(n)}).sort(function(x,y){return (y.updatedAt||0)-(x.updatedAt||0)});
@@ -1764,7 +1764,7 @@ function bkPreview(){
   var b={c1:bkEdit.c1,c2:bkEdit.c2};
   $('bkPrev').setAttribute('style',coverStyle(b));
   $('bkPe').textContent=bkEdit.emoji||'📓';
-  $('bkPt').textContent=bkEdit.title||'이름 없는 노트';
+  $('bkPt').textContent=bkEdit.title||'새 노트';
   $('bkC1').value=bkEdit.c1;$('bkC2').value=bkEdit.c2;
   Array.prototype.forEach.call($('bkPal').children,function(el,i){el.setAttribute('aria-pressed',BK_GRADS[i][0].toLowerCase()===bkEdit.c1.toLowerCase()&&BK_GRADS[i][1].toLowerCase()===bkEdit.c2.toLowerCase()?'true':'false')});
   Array.prototype.forEach.call($('bkEmojis').children,function(el){el.setAttribute('aria-pressed',el.textContent===bkEdit.emoji?'true':'false')});
@@ -1804,7 +1804,7 @@ function saveBookModal(){
 }
 function deleteBook(){
   var b=bookById(S.book);if(!b)return;
-  if(!window.confirm('"'+(b.title||'이름 없는 노트')+'" 노트를 지울까요?\n안에 있는 글은 지워지지 않고 "노트에 넣지 않은 글"로 돌아가요.'))return;
+  if(!window.confirm('"'+(b.title||'새 노트')+'" 노트를 지울까요?\n안에 있는 글은 지워지지 않고 "노트에 넣지 않은 글"로 돌아가요.'))return;
   S.notes.forEach(function(n){
     if(n.bookId===b.id){delete n.bookId;n.updatedAt=Date.now();flush(n.id)}
   });
@@ -1833,7 +1833,7 @@ function renderBookPop(){
   var n=active();if(!n)return;
   var cur=cardBookId(n);
   var h='<button type="button" data-setbook="" aria-pressed="'+(!cur)+'">📄 노트에 넣지 않음</button>';
-  books().forEach(function(k){h+='<button type="button" data-setbook="'+esc(k.id)+'" aria-pressed="'+(cur===k.id)+'"><span>'+esc(k.emoji)+'</span><span>'+esc(k.title||'이름 없는 노트')+'</span></button>'});
+  books().forEach(function(k){h+='<button type="button" data-setbook="'+esc(k.id)+'" aria-pressed="'+(cur===k.id)+'"><span>'+esc(k.emoji)+'</span><span>'+esc(k.title||'새 노트')+'</span></button>'});
   h+='<button type="button" data-newbook="1">+ 새 노트 만들기</button>';
   $('bookPop').innerHTML=h;
 }
@@ -1843,7 +1843,7 @@ function setCardBook(id){
   touch(n);
   $('bookPop').hidden=true;
   var b=bookById(id);
-  flash(b?'"'+(b.title||'이름 없는 노트')+'" 노트에 넣었어요.':'노트에서 뺐어요.');
+  flash(b?'"'+(b.title||'새 노트')+'" 노트에 넣었어요.':'노트에서 뺐어요.');
   renderAll();
 }
 function restoreNote(id){
@@ -2077,7 +2077,7 @@ function moveCardToBook(id,bid){
   n.updatedAt=Date.now();
   flush(id);
   var b=bookById(bid);
-  flash(b?'"'+(b.title||'이름 없는 노트')+'" 노트에 넣었어요.':'노트에서 뺐어요.');
+  flash(b?'"'+(b.title||'새 노트')+'" 노트에 넣었어요.':'노트에서 뺐어요.');
   renderAll();
 }
 $('notes').addEventListener('dragstart',function(e){
