@@ -1878,6 +1878,9 @@ function newNote(target){
   var n={id:'n'+t.toString(36)+Math.random().toString(36).slice(2,6),title:'',body:S.tag?'\n\n#'+S.tag:'',font:S.settings.defaultFont,pinned:false,createdAt:t,updatedAt:t};
   var tb=target===undefined?S.book:(target==='_'?null:target);
   if(tb&&bookById(tb))n.bookId=tb;
+  var mp=null;
+  liveNotes().forEach(function(x){if((cardBookId(x)||'')===(n.bookId||'')&&typeof x.pos==='number'&&(mp===null||x.pos<mp))mp=x.pos});
+  if(mp!==null)n.pos=mp-10;
   S.notes.push(n);dirty.add(n.id);
   S.q='';$('q').value='';
   S.activeId=n.id;S.armDel=false;
