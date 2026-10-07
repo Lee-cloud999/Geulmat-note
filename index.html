@@ -309,6 +309,22 @@ svg{display:block;flex:none}
 .acct-pop[hidden]{display:none}
 .acct-pop b{color:var(--ink);font-weight:600;overflow-wrap:anywhere}
 .acct-pop .btn{width:100%;justify-content:center}
+.dnd-hint{position:fixed;left:50%;bottom:calc(28px + env(safe-area-inset-bottom,0px));z-index:110;width:min(320px,calc(100vw - 32px));margin-left:calc(min(320px,calc(100vw - 32px))/-2);padding:14px 16px 12px;border-radius:18px;background:var(--paper);color:var(--ink);border:1px solid var(--line);box-shadow:0 14px 40px rgba(0,0,0,.22);text-align:center;font-size:13px;pointer-events:none;animation:dh-in .35s ease both}
+.dnd-hint.out{animation:dh-out .4s ease both}
+.dnd-hint b{display:block;margin-top:8px;font-weight:600}
+.dnd-hint span.sub{display:block;margin-top:2px;font-size:12px;color:var(--ink2)}
+.dh-stage{position:relative;height:96px;overflow:hidden}
+.dh-cover{position:absolute;right:26px;top:10px;width:58px;height:76px;border-radius:5px 12px 12px 5px;background:linear-gradient(135deg,#9CA893,#80907A);box-shadow:0 2px 8px rgba(0,0,0,.18),inset 5px 0 0 rgba(0,0,0,.14);display:grid;place-items:center;font-size:24px;animation:dh-cover 2.5s ease-in-out infinite}
+.dh-card{position:absolute;left:26px;top:22px;width:84px;height:52px;border-radius:9px;background:var(--paper);border:1px solid var(--line);box-shadow:0 3px 10px rgba(0,0,0,.14);padding:8px;text-align:left;animation:dh-card 2.5s ease-in-out infinite}
+.dh-card i{display:block;height:5px;border-radius:3px;background:var(--line);margin-bottom:6px}
+.dh-card i:first-child{width:60%;background:var(--ink2);opacity:.6}
+.dh-hand{position:absolute;left:84px;top:50px;font-size:24px;line-height:1;animation:dh-hand 2.5s ease-in-out infinite;filter:drop-shadow(0 2px 2px rgba(0,0,0,.25))}
+@keyframes dh-card{0%,15%{transform:translate(0,0) scale(1);opacity:1}55%,70%{transform:translate(110px,-4px) scale(.82);opacity:1}85%,100%{transform:translate(122px,-4px) scale(.3);opacity:0}}
+@keyframes dh-hand{0%,15%{transform:translate(0,0)}55%,70%{transform:translate(110px,-4px)}100%{transform:translate(122px,-4px);opacity:0}}
+@keyframes dh-cover{0%,60%{transform:scale(1)}72%{transform:scale(1.08)}84%,100%{transform:scale(1)}}
+@keyframes dh-in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes dh-out{to{opacity:0;transform:translateY(14px)}}
+@media (prefers-reduced-motion:reduce){.dh-card,.dh-hand,.dh-cover{animation:none}.dh-card{transform:translate(60px,0)}}
 .ptr{position:fixed;top:env(safe-area-inset-top,0px);left:50%;z-index:120;display:flex;align-items:center;gap:8px;margin-left:-70px;width:140px;justify-content:center;padding:7px 12px;border-radius:999px;background:var(--paper);color:var(--ink2);border:1px solid var(--line);box-shadow:0 4px 14px rgba(0,0,0,.12);font-size:12px;transform:translateY(-100%);opacity:0;visibility:hidden;pointer-events:none;transition:transform .15s,opacity .15s}
 .ptr.show{opacity:1;visibility:visible}
 .ptr.ready{color:var(--accent);border-color:var(--accent)}
@@ -1063,6 +1079,7 @@ function toggleMenu(from){
 function closeDrawer(){S.view=(S.from==='edit'&&S.activeId)?'edit':'list';applyView()}
 function renderAll(){
   renderTags();renderList();renderTree();renderBar();renderMeta();renderAccount();applyView();
+  maybeShowHint();
 }
 
 /* ---------- editor ---------- */
@@ -2014,6 +2031,19 @@ $('acctPop').addEventListener('click',function(e){
 });
 document.addEventListener('click',function(e){if(!$('acctPop').hidden&&!e.target.closest('.acct-wrap'))closeAcct()});
 document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!$('acctPop').hidden)closeAcct()});
+/* first-run hint: how to drag a card into a notebook (shown once, 5 seconds) */
+var HINT_KEY='geulmat:hint-dnd',hintDone=false;
+function maybeShowHint(){
+  if(hintDone||S.mode==='boot'||!$('gate').hidden)return;
+  hintDone=true;
+  try{if(localStorage.getItem(HINT_KEY))return;localStorage.setItem(HINT_KEY,'1')}catch(e){return}
+  var el=document.createElement('div');
+  el.className='dnd-hint';el.setAttribute('role','status');
+  el.innerHTML='<div class="dh-stage" aria-hidden="true"><div class="dh-cover">🌱</div><div class="dh-card"><i></i><i></i><i></i></div><div class="dh-hand">👆</div></div><b>카드를 끌어서 노트에 넣어 보세요</b><span class="sub">카드를 길게 누른 채 노트 표지 위로 옮기면 돼요</span>';
+  document.body.appendChild(el);
+  setTimeout(function(){el.classList.add('out')},4600);
+  setTimeout(function(){el.remove()},5000);
+}
 function reloadTutorial(){
   if(!window.confirm('"사용 안내" 글을 최신 내용으로 바꿔요.\n예전 안내 글은 휴지통으로 가고, 내가 쓴 글은 그대로예요. 계속할까요?'))return;
   var now=Date.now();
