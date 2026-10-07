@@ -964,7 +964,8 @@ var DOCK_KEY='geulmat:dock';
 function isWide(){return window.innerWidth>=900}
 function dockOn(){return !!S.dock&&isWide()}
 function setDock(v){S.dock=v;try{localStorage.setItem(DOCK_KEY,v?'1':'0')}catch(e){}}
-try{S.dock=localStorage.getItem(DOCK_KEY)==='1'}catch(e){}
+S.dock=true;
+try{if(localStorage.getItem(DOCK_KEY)==='0')S.dock=false}catch(e){}
 function applyView(){
   if(dockOn()&&S.view==='tags'){S.view=(S.from==='edit'&&S.activeId)?'edit':'list'}
   if(S.view!=='tags')S.from=null;
