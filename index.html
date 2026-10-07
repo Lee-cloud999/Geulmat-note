@@ -201,6 +201,17 @@ svg{display:block;flex:none}
 .acct-state{display:flex;align-items:center;gap:6px}
 .acct-state::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--accent)}
 .acct-state[data-state="busy"]::before,.acct-state[data-state="off"]::before{background:var(--ink2)}
+.lic-wrap{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:16px}
+.lic-wrap[hidden]{display:none}
+.lic-scrim{position:absolute;inset:0;background:rgba(0,0,0,.4)}
+.lic{position:relative;display:flex;flex-direction:column;width:min(560px,100%);max-height:min(82vh,680px);background:var(--paper);color:var(--ink);border:1px solid var(--line);border-radius:14px;box-shadow:0 18px 44px rgba(0,0,0,.25);overflow:hidden}
+.lic-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 14px 10px 18px;border-bottom:1px solid var(--line)}
+.lic-head h2{margin:0;font-size:16px}
+.lic-body{padding:6px 18px 18px;overflow:auto;font-size:13px;line-height:1.7}
+.lic-body h3{margin:16px 0 4px;font-size:13px;color:var(--ink2)}
+.lic-body p{margin:6px 0}
+.lic-list{margin:6px 0;padding-left:18px}
+.lic-body a{color:var(--accent);text-underline-offset:3px;overflow-wrap:anywhere}
 .foot-btns{display:flex;flex-wrap:wrap;gap:4px 12px}
 .linkbtn{padding:4px 0;border:0;background:none;color:var(--ink2);font-size:12px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 .linkbtn:hover{color:var(--ink)}
@@ -242,6 +253,7 @@ svg{display:block;flex:none}
         <button class="linkbtn" id="btnRestore" type="button">백업 불러오기</button>
         <button class="linkbtn" id="btnGoCloud" type="button" hidden>로그인하고 동기화</button>
         <button class="linkbtn" id="btnInstall" type="button" hidden>앱으로 설치</button>
+        <button class="linkbtn" id="btnLic" type="button">글꼴 · 오픈소스 라이선스</button>
         <button class="linkbtn" id="btnLogout" type="button" hidden>로그아웃</button>
       </div>
       <div class="foot-note" id="store" role="status"></div>
@@ -309,6 +321,34 @@ svg{display:block;flex:none}
 </div>
 <div class="scrim" id="scrim" hidden></div>
 
+<div class="lic-wrap" id="licWrap" hidden>
+  <div class="lic-scrim" id="licScrim"></div>
+  <section class="lic" role="dialog" aria-modal="true" aria-labelledby="licTitle">
+    <header class="lic-head"><h2 id="licTitle">글꼴 · 오픈소스 라이선스</h2><button class="icon" id="licClose" type="button" aria-label="닫기">✕</button></header>
+    <div class="lic-body">
+      <h3>사용한 글꼴</h3>
+      <p>아래 글꼴은 모두 SIL Open Font License 1.1(OFL)로 배포되는 글꼴이에요. OFL은 상업적 사용과 앱·웹에 포함해서 쓰는 것을 허용해요. 글꼴 파일 자체를 따로 판매하는 것은 허용되지 않아요. 이 앱은 글꼴 파일을 직접 담지 않고 Google Fonts에서 불러와 써요.</p>
+      <ul class="lic-list">
+        <li><a href="https://fonts.google.com/specimen/Gowun+Batang" target="_blank" rel="noopener">고운바탕 (Gowun Batang)</a></li>
+        <li><a href="https://fonts.google.com/specimen/Gowun+Dodum" target="_blank" rel="noopener">고운돋움 (Gowun Dodum)</a></li>
+        <li><a href="https://fonts.google.com/noto/specimen/Noto+Serif+KR" target="_blank" rel="noopener">노토 세리프 KR (Noto Serif KR)</a></li>
+        <li><a href="https://fonts.google.com/noto/specimen/Noto+Sans+KR" target="_blank" rel="noopener">노토 산스 KR (Noto Sans KR)</a></li>
+        <li><a href="https://fonts.google.com/specimen/Nanum+Myeongjo" target="_blank" rel="noopener">나눔명조 (Nanum Myeongjo)</a></li>
+        <li><a href="https://fonts.google.com/specimen/Nanum+Gothic+Coding" target="_blank" rel="noopener">나눔고딕코딩 (Nanum Gothic Coding)</a></li>
+        <li><a href="https://fonts.google.com/specimen/Nanum+Pen+Script" target="_blank" rel="noopener">나눔손글씨 펜 (Nanum Pen Script)</a></li>
+        <li><a href="https://fonts.google.com/specimen/Hahmlet" target="_blank" rel="noopener">함렛 (Hahmlet)</a></li>
+        <li><a href="https://fonts.google.com/specimen/Song+Myung" target="_blank" rel="noopener">송명 (Song Myung)</a></li>
+        <li><a href="https://fonts.google.com/specimen/IBM+Plex+Sans+KR" target="_blank" rel="noopener">IBM 플렉스 산스 KR (IBM Plex Sans KR)</a></li>
+      </ul>
+      <p>각 글꼴의 저작권 표시와 라이선스 전문은 위 링크의 글꼴 페이지(License 항목)에서 볼 수 있어요. 라이선스 전문: <a href="https://openfontlicense.org" target="_blank" rel="noopener">openfontlicense.org</a></p>
+      <p>"시스템 기본"은 기기에 설치된 글꼴을 그대로 써요.</p>
+      <h3>오픈소스 소프트웨어</h3>
+      <ul class="lic-list">
+        <li>Firebase JavaScript SDK — Apache License 2.0 · <a href="https://github.com/firebase/firebase-js-sdk" target="_blank" rel="noopener">github.com/firebase/firebase-js-sdk</a></li>
+      </ul>
+    </div>
+  </section>
+</div>
 <div class="gate" id="gate">
   <div class="gate-box" id="splash">
     <div class="auth-brand">글맛노트</div>
@@ -1686,6 +1726,12 @@ $('btnGoCloud').addEventListener('click',goCloud);
 $('moveYes').addEventListener('click',moveLocal);
 $('moveNo').addEventListener('click',function(){$('movePanel').hidden=true});
 $('btnBackup').addEventListener('click',exportBackup);
+function openLic(){$('licWrap').hidden=false;$('licClose').focus()}
+function closeLic(){$('licWrap').hidden=true;$('btnLic').focus()}
+$('btnLic').addEventListener('click',openLic);
+$('licClose').addEventListener('click',closeLic);
+$('licScrim').addEventListener('click',closeLic);
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!$('licWrap').hidden)closeLic()});
 $('btnRestore').addEventListener('click',function(){$('fileIn').click()});
 $('fileIn').addEventListener('change',function(){
   var f=$('fileIn').files&&$('fileIn').files[0];
