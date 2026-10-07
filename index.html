@@ -254,6 +254,9 @@ svg{display:block;flex:none}
 .n-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:auto;padding-top:4px;font-size:12px;color:var(--ink2)}
 .n-date{font-size:12px;color:var(--ink2);font-variant-numeric:tabular-nums;white-space:nowrap}
 .n-foot{margin-top:auto}
+.notes>li[data-card]{height:216px}
+.notes>li[data-card] .note{height:100%;min-height:0;overflow:hidden}
+@media (max-width:520px){.notes>li[data-card]{height:200px}}
 .n-tags{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--accent)}
 .notes>.none,.notes>.tr-bar{grid-column:1/-1}
 .tr-item{background:var(--paper);border:1px solid var(--line);border-radius:14px;align-content:start}
