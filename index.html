@@ -309,8 +309,11 @@ svg{display:block;flex:none}
 .acct-pop[hidden]{display:none}
 .acct-pop b{color:var(--ink);font-weight:600;overflow-wrap:anywhere}
 .acct-pop .btn{width:100%;justify-content:center}
-.dnd-hint{position:fixed;inset:0;margin:auto;height:fit-content;z-index:110;width:min(440px,calc(100vw - 32px));padding:22px 22px 18px;border-radius:24px;background:var(--paper);color:var(--ink);border:1px solid var(--line);box-shadow:0 24px 70px rgba(0,0,0,.3);text-align:center;font-size:14px;pointer-events:none;animation:dh-in .35s ease both}
-.dnd-hint.out{animation:dh-out .4s ease both}
+.dnd-hint{position:absolute;inset:0;margin:auto;height:fit-content;width:min(440px,calc(100vw - 32px));padding:22px 22px 18px;border-radius:24px;background:var(--paper);color:var(--ink);border:1px solid var(--line);box-shadow:0 24px 70px rgba(0,0,0,.3);text-align:center;font-size:14px;animation:dh-in .35s ease both}
+.dnd-wrap{position:fixed;inset:0;z-index:110;background:rgba(0,0,0,.28);animation:dh-fade .25s ease both}
+.dnd-wrap.out{animation:dh-fadeout .3s ease both}
+@keyframes dh-fade{from{opacity:0}to{opacity:1}}
+@keyframes dh-fadeout{to{opacity:0}}
 .dnd-hint b{display:block;margin-top:12px;font-weight:700;font-size:18px}
 .dnd-hint span.sub{display:block;margin-top:4px;font-size:14px;color:var(--ink2)}
 .dnd-hint .dh-go{display:block;margin-top:10px;padding:7px 10px;border-radius:10px;background:var(--soft);color:var(--accent);font-weight:700;font-size:15px}
@@ -2037,13 +2040,21 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!$('acctPop
 var HINT_KEY='geulmat:hint-dnd',hintDone=false;
 function showHint(delay){
   setTimeout(function(){
-    Array.prototype.forEach.call(document.querySelectorAll('.dnd-hint'),function(x){x.remove()});
+    Array.prototype.forEach.call(document.querySelectorAll('.dnd-wrap'),function(x){x.remove()});
+    var wrap=document.createElement('div');
+    wrap.className='dnd-wrap';
     var el=document.createElement('div');
     el.className='dnd-hint';el.setAttribute('role','status');
     el.innerHTML='<div class="dh-stage" aria-hidden="true"><div class="dh-cover">🌱</div><div class="dh-card"><i></i><i></i><i></i></div><div class="dh-hand">👆</div></div><b>카드를 끌어서 노트에 넣어 보세요</b><span class="sub">카드를 길게 누른 채 노트 표지 위로 옮기면 돼요</span>'+(bookById('welcome-book')?'<span class="dh-go">📖 "사용 안내"를 클릭해 보세요</span>':'');
-    document.body.appendChild(el);
-    setTimeout(function(){el.classList.add('out')},4600);
-    setTimeout(function(){el.remove()},5000);
+    wrap.appendChild(el);document.body.appendChild(wrap);
+    function close(){
+      document.removeEventListener('keydown',onKey);
+      wrap.classList.add('out');
+      setTimeout(function(){wrap.remove()},300);
+    }
+    function onKey(e){if(e.key==='Escape')close()}
+    wrap.addEventListener('click',function(e){if(!e.target.closest('.dnd-hint'))close()});
+    document.addEventListener('keydown',onKey);
   },delay);
 }
 function maybeShowHint(){
