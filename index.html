@@ -362,6 +362,18 @@ svg{display:block;flex:none}
 .ins-btn:hover,.ins-btn:focus-visible{opacity:1!important;background:var(--soft);color:var(--accent);border-color:var(--accent)}
 @media (hover:none){.ins-btn{opacity:.5}}
 @media (max-width:640px){.ins-btn{display:none}.lst>.notes{padding-inline:0;margin-inline:0 auto;width:100%;max-width:1040px}}
+/* 태블릿(아이패드 등 터치 기기): 노트 표지와 카드를 작게 */
+@media (min-width:641px) and (hover:none) and (pointer:coarse){
+  .shelf{grid-template-columns:repeat(auto-fill,minmax(104px,104px));gap:10px;padding-bottom:12px}
+  .cover{padding:10px 8px 9px 14px}
+  .cover .cv-emoji,.shelf .cover .cv-emoji{font-size:26px}
+  .cover .cv-title{font-size:13px}
+  .cover .cv-cnt{font-size:11px}
+  .notes{grid-template-columns:repeat(auto-fill,minmax(184px,1fr));gap:10px}
+  .notes>li[data-card]{height:168px}
+  .notes>li[data-card] .note{padding:12px 13px}
+  .notes>li[data-card] .n-title{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:18px}
+}
 .notes>li.loose-zone{grid-column:1/-1;display:flex;align-items:center;justify-content:center;min-height:130px;border:2px dashed transparent;border-radius:14px;font-size:13px;color:transparent}
 .notes:has(.dragging) .loose-zone{border-color:var(--line);color:var(--ink2)}
 .notes>li.loose-zone.drop-ok{border-color:var(--accent);color:var(--accent);background:var(--soft)}
