@@ -16,7 +16,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&family=Hahmlet&family=IBM+Plex+Sans+KR:wght@400;500;600&family=Nanum+Myeongjo&family=Noto+Serif+KR&family=Song+Myung&display=swap">
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&family=Hahmlet&family=IBM+Plex+Sans+KR:wght@400;500;600&family=Song+Myung&display=swap">
 <script src="firebase-config.js"></script>
 <style>
 /* Layout: three panes (tags | note list | writing page). On phones one pane at a time. */
@@ -643,8 +643,6 @@ svg{display:block;flex:none}
       <ul class="lic-list">
         <li><a href="https://fonts.google.com/specimen/Gowun+Batang" target="_blank" rel="noopener">고운바탕 (Gowun Batang)</a></li>
         <li><a href="https://fonts.google.com/specimen/Gowun+Dodum" target="_blank" rel="noopener">고운돋움 (Gowun Dodum)</a></li>
-        <li><a href="https://fonts.google.com/noto/specimen/Noto+Serif+KR" target="_blank" rel="noopener">노토 세리프 KR (Noto Serif KR)</a></li>
-        <li><a href="https://fonts.google.com/specimen/Nanum+Myeongjo" target="_blank" rel="noopener">나눔명조 (Nanum Myeongjo)</a></li>
         <li><a href="https://fonts.google.com/specimen/Hahmlet" target="_blank" rel="noopener">함렛 (Hahmlet)</a></li>
         <li><a href="https://fonts.google.com/specimen/Song+Myung" target="_blank" rel="noopener">송명 (Song Myung)</a></li>
         <li><a href="https://fonts.google.com/specimen/IBM+Plex+Sans+KR" target="_blank" rel="noopener">IBM 플렉스 산스 KR (IBM Plex Sans KR)</a></li>
@@ -717,13 +715,11 @@ function narrow(){return true}
 var FONTS=[
   {id:'sys',name:'시스템 기본',stack:'system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif',scale:1},
   {id:'gowun-batang',name:'고운바탕',stack:'"Gowun Batang","Batang",serif',scale:1},
-  {id:'noto-serif',name:'노토 세리프',stack:'"Noto Serif KR","Batang",serif',scale:1},
-  {id:'myeongjo',name:'나눔명조',stack:'"Nanum Myeongjo","Batang",serif',scale:1},
   {id:'hahmlet',name:'함렛',stack:'"Hahmlet","Batang",serif',scale:1},
   {id:'songmyung',name:'송명',stack:'"Song Myung","Batang",serif',scale:1.08},
   {id:'gowun-dodum',name:'고운돋움',stack:'"Gowun Dodum","Malgun Gothic",sans-serif',scale:1}
 ];
-var FONT_MOVED={'noto-sans':'gowun-dodum','plex':'gowun-dodum','coding':'gowun-dodum','pen':'gowun-batang'};
+var FONT_MOVED={'noto-serif':'hahmlet','myeongjo':'hahmlet','noto-sans':'gowun-dodum','plex':'gowun-dodum','coding':'gowun-dodum','pen':'gowun-batang'};
 function fontById(id){id=FONT_MOVED[id]||id;for(var i=0;i<FONTS.length;i++){if(FONTS[i].id===id)return FONTS[i]}return FONTS[1]}
 
 var PIN_OUT='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16v5M9 3h6l-1 6 3 3v2H7v-2l3-3z"/></svg>';
