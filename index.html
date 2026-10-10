@@ -2503,28 +2503,33 @@ function moveCardToBook(id,bid){
   flash(b?'"'+(b.title||'새 노트')+'" 노트에 넣었어요.':'노트에서 뺐어요.');
   renderAll();
 }
-function reorderCard(id,targetId,after){
-  var n=findNote(id),t=findNote(targetId);
-  if(!n||!t||n===t)return;
-  var bid=cardBookId(t);
-  var moved=(cardBookId(n)||'')!==(bid||'');
-  if(moved){if(bid)n.bookId=bid;else delete n.bookId;n.updatedAt=Date.now()}
-  var list=sortCards(liveNotes().filter(function(x){return (cardBookId(x)||'')===(bid||'')&&x!==n}));
+function reorderCard(id,targetId,after){reorderCards([id],targetId,after)}
+function reorderCards(ids,targetId,after){
+  var t=findNote(targetId);if(!t||t.deletedAt)return;
+  var grp=sortCards(ids.filter(function(i){return i!==targetId}).map(findNote).filter(function(n){return n&&!n.deletedAt}));
+  if(!grp.length)return;
+  var bid=cardBookId(t),now=Date.now(),movedCnt=0;
+  grp.forEach(function(n){
+    if((cardBookId(n)||'')!==(bid||'')){if(bid)n.bookId=bid;else delete n.bookId;n.updatedAt=now;movedCnt++}
+  });
+  var list=sortCards(liveNotes().filter(function(x){return (cardBookId(x)||'')===(bid||'')&&grp.indexOf(x)<0}));
   var idx=list.indexOf(t);if(idx<0)idx=list.length;
   var at=after?idx+1:idx;
-  list.splice(at,0,n);
-  var pv=list[at-1],nx=list[at+1],pinChanged=false;
-  if(nx&&nx.pinned&&!n.pinned){n.pinned=true;pinChanged='on'}
-  else if(pv&&!pv.pinned&&n.pinned){n.pinned=false;pinChanged='off'}
-  if(pinChanged)n.updatedAt=Date.now();
+  Array.prototype.splice.apply(list,[at,0].concat(grp));
+  var pv=list[at-1],nx=list[at+grp.length],pinChanged=false;
+  grp.forEach(function(n){
+    if(nx&&nx.pinned&&!n.pinned){n.pinned=true;pinChanged='on';n.updatedAt=now}
+    else if(pv&&!pv.pinned&&n.pinned){n.pinned=false;pinChanged='off';n.updatedAt=now}
+  });
   var changed=[];
   list.forEach(function(x,i){
     var np=i*10;
-    if(x.pos!==np||x===n){x.pos=np;changed.push(x.id)}
+    if(x.pos!==np||grp.indexOf(x)>=0){x.pos=np;changed.push(x.id)}
   });
   changed.forEach(function(i){dirty.add(i)});
   changed.forEach(flush);
-  if(moved){var b=bookById(bid);flash(b?'"'+(b.title||'새 노트')+'" 노트에 넣었어요.':'노트에서 뺐어요.')}
+  S.sel={};
+  if(movedCnt){var b=bookById(bid),k=movedCnt>1?movedCnt+'개를 ':'';flash(b?'"'+(b.title||'새 노트')+'" 노트에 '+k+'넣었어요.':'노트에서 '+k+'뺐어요.')}
   else if(pinChanged)flash(pinChanged==='on'?'고정 글 사이로 옮겨서 고정했어요.':'고정 글 아래로 옮겨서 고정을 풀었어요.');
   renderAll();
 }
@@ -2628,11 +2633,11 @@ function dragDrop(t,x,y){
   clearDrop();
   if(!d)return false;
   var id=dragId,group=(dragKind==='card'&&S.sel[id]&&selCount()>1)?selIds():null;
-  if(group&&d.type!=='trash'&&d.type!=='into')return false;
+  if(group&&d.type==='reorderBook')return false;
   dragId=null;
   if(d.type==='trash')trashCards(group||[id]);
   else if(d.type==='into'){if(group)moveCardsToBook(group,d.id);else moveCardToBook(id,d.id)}
-  else if(d.type==='reorderCard')reorderCard(id,d.id,d.after);
+  else if(d.type==='reorderCard'){if(group)reorderCards(group,d.id,d.after);else reorderCard(id,d.id,d.after)}
   else reorderBook(id,d.id,d.after);
   return true;
 }
