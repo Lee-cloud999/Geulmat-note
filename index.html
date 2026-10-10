@@ -435,7 +435,17 @@ svg{display:block;flex:none}
 .notes>li[draggable]{cursor:grab}
 .notes>li.dragging{opacity:.4}
 .drop-ok{outline:none!important;transform:none!important;filter:brightness(1.07)}
+/* 다중 선택 */
+.notes>li.selected .note{box-shadow:0 0 0 2px var(--accent);background:var(--soft)}
+.notes>li.selected{position:relative}
+.notes>li.selected::after{content:"✓";position:absolute;top:8px;right:8px;width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-size:13px;line-height:22px;text-align:center;pointer-events:none;z-index:2}
+.tr-card.selected{background:var(--soft);box-shadow:inset 3px 0 0 var(--accent)}
+.selbar{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:60;display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:14px;background:var(--paper);border:1px solid var(--line);box-shadow:0 10px 28px rgba(0,0,0,.2);font-size:13px;color:var(--ink);max-width:calc(100vw - 24px)}
+.selbar[hidden]{display:none}
+.selbar select{height:34px;max-width:160px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);font:inherit;padding:0 8px}
+.selbar .btn{height:34px;padding:0 12px;white-space:nowrap}
 .tr-row.drop-ok,.tr-head.drop-ok{background:var(--soft)}
+.tagbtn.drop-ok{background:var(--soft);color:var(--accent)}
 .bb-back.drop-ok{background:var(--soft)}
 .drop-before{box-shadow:-5px 0 0 var(--accent)}
 .drop-after{box-shadow:5px 0 0 var(--accent)}
@@ -655,6 +665,12 @@ svg{display:block;flex:none}
       </ul>
     </div>
   </section>
+</div>
+<div class="selbar" id="selBar" hidden role="toolbar" aria-label="선택한 글">
+  <span id="selCount"></span>
+  <select id="selMove" aria-label="노트에 넣기"></select>
+  <button type="button" class="btn danger" id="selTrash">휴지통</button>
+  <button type="button" class="btn" id="selCancel">취소</button>
 </div>
 <div class="gate" id="gate">
   <div class="gate-box" id="splash">
@@ -1111,7 +1127,7 @@ function toggleMenu(from){
 function closeDrawer(){S.view=(S.from==='edit'&&S.activeId)?'edit':'list';applyView()}
 function renderAll(){
   renderTags();renderList();renderTree();renderBar();renderMeta();renderAccount();applyView();
-  maybeShowHint();
+  maybeShowHint();renderSel();
 }
 
 /* ---------- editor ---------- */
@@ -2057,6 +2073,10 @@ $('acctPop').addEventListener('click',function(e){
 });
 document.addEventListener('click',function(e){if(!$('acctPop').hidden&&!e.target.closest('.acct-wrap'))closeAcct()});
 document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!$('acctPop').hidden)closeAcct()});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&selCount()&&$('licWrap').hidden&&$('acctPop').hidden)clearSel()});
+$('selCancel').addEventListener('click',clearSel);
+$('selTrash').addEventListener('click',function(){trashCards(selIds())});
+$('selMove').addEventListener('change',function(){var v=$('selMove').value;if(v==='__')return;moveCardsToBook(selIds(),v)});
 /* first-run hint: how to drag a card into a notebook (shown once, 5 seconds) */
 var HINT_KEY='geulmat:hint-dnd',hintDone=false;
 function showHint(delay){
@@ -2268,7 +2288,11 @@ $('notes').addEventListener('click',function(e){
   }
   if(e.target.closest('[data-emptytrash]')){emptyTrash();return}
   var b=e.target.closest('[data-id]');
-  if(b)selectNote(b.getAttribute('data-id'));
+  if(b){
+    var bid=b.getAttribute('data-id');
+    if(selCount()||e.ctrlKey||e.metaKey||e.shiftKey){e.preventDefault();toggleSel(bid);return}
+    selectNote(bid);
+  }
 });
 $('tags').addEventListener('click',function(e){
   var tb=e.target.closest('[data-trash]');
@@ -2419,6 +2443,54 @@ var dragId=null,dragKind=null,dragOpenTimer=0;
 function clearDrop(){
   Array.prototype.forEach.call(document.querySelectorAll('.drop-ok,.drop-before,.drop-after,.drop-above,.drop-below'),function(x){x.classList.remove('drop-ok','drop-before','drop-after','drop-above','drop-below')});
 }
+S.sel={};
+function selIds(){return Object.keys(S.sel).filter(function(id){return S.sel[id]})}
+function selCount(){return selIds().length}
+function toggleSel(id){if(S.sel[id])delete S.sel[id];else S.sel[id]=true;renderSel()}
+function clearSel(){S.sel={};renderSel()}
+function renderSel(){
+  Object.keys(S.sel).forEach(function(id){var n=findNote(id);if(!n||n.deletedAt)delete S.sel[id]});
+  var c=selCount();
+  Array.prototype.forEach.call(document.querySelectorAll('li[data-card]'),function(x){x.classList.toggle('selected',!!S.sel[x.getAttribute('data-card')])});
+  Array.prototype.forEach.call(document.querySelectorAll('[data-tcard]'),function(x){x.classList.toggle('selected',!!S.sel[x.getAttribute('data-tcard')])});
+  var bar=$('selBar');bar.hidden=!c;
+  document.body.classList.toggle('selecting',c>0);
+  if(c){
+    $('selCount').textContent=c+'개 선택';
+    var h='<option value="__">노트에 넣기…</option>'+books().map(function(k){return '<option value="'+esc(k.id)+'">'+esc(k.emoji+' '+(k.title||'새 노트'))+'</option>'}).join('')+'<option value="">노트에서 빼기</option>';
+    if($('selMove').getAttribute('data-h')!==h){$('selMove').innerHTML=h;$('selMove').setAttribute('data-h',h)}
+    $('selMove').value='__';
+  }
+}
+function trashCards(ids){
+  var moved=0;
+  ids.forEach(function(id){
+    var n=findNote(id);if(!n||n.deletedAt)return;
+    if(isEmpty(n)){removeNote(id)}
+    else{n.deletedAt=Date.now();n.updatedAt=n.deletedAt;dirty.add(id);moved++}
+    if(S.activeId===id){S.activeId=null;if(narrow())S.view='list'}
+  });
+  ids.forEach(function(id){if(findNote(id))flush(id)});
+  S.sel={};
+  loadEditor();renderAll();
+  if(moved)flash((ids.length>1?moved+'개를 ':'')+'휴지통으로 옮겼어요. '+TRASH_DAYS+'일 안에 되돌릴 수 있어요.');
+}
+function trashCard(id){trashCards([id])}
+function moveCardsToBook(ids,bid){
+  if(bid&&!bookById(bid))return;
+  var cnt=0,now=Date.now();
+  ids.forEach(function(id){
+    var n=findNote(id);if(!n||n.deletedAt)return;
+    if((cardBookId(n)||'')===(bid||''))return;
+    if(bid)n.bookId=bid;else delete n.bookId;
+    n.updatedAt=now;dirty.add(id);cnt++;
+  });
+  ids.forEach(function(id){if(findNote(id))flush(id)});
+  S.sel={};
+  var b=bookById(bid);
+  if(cnt)flash(b?'"'+(b.title||'새 노트')+'" 노트에 '+cnt+'개를 넣었어요.':'노트에서 '+cnt+'개를 뺐어요.');
+  renderAll();
+}
 function moveCardToBook(id,bid){
   var n=findNote(id);if(!n)return;
   if(bid&&!bookById(bid))return;
@@ -2482,6 +2554,8 @@ function dropTarget(t,px,py){
     }
     return null;
   }
+  el=t.closest('[data-ttrash],[data-trash]');
+  if(el)return {el:el,type:'trash',id:dragId,cls:['drop-ok','drop-ok']};
   el=t.closest('[data-tcard]');
   if(el&&el.getAttribute('data-tcard')!==dragId){
     var r3=el.getBoundingClientRect();
@@ -2511,7 +2585,18 @@ function dragSourceOf(el){
   }
   return {kind:'book',id:el.getAttribute('data-book')};
 }
-var lastTouchAt=0;
+var lastTouchAt=0,mlp=null;
+document.addEventListener('mousedown',function(e){
+  clearTimeout(mlp);
+  if(e.button!==0||Date.now()-lastTouchAt<1500)return;
+  var el=e.target.closest&&e.target.closest('li[data-card],[data-tcard]');
+  if(!el||e.target.closest('[data-pin],.ins-btn'))return;
+  var id=el.getAttribute('data-card')||el.getAttribute('data-tcard'),sx=e.clientX,sy=e.clientY;
+  function mv(ev){if(Math.abs(ev.clientX-sx)>6||Math.abs(ev.clientY-sy)>6)stop()}
+  function stop(){clearTimeout(mlp);document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',stop)}
+  mlp=setTimeout(function(){stop();suppressClickUntil=Date.now()+1e9;document.addEventListener('mouseup',function(){suppressClickUntil=Date.now()+150},{once:true});toggleSel(id)},500);
+  document.addEventListener('mousemove',mv);document.addEventListener('mouseup',stop);
+});
 document.addEventListener('dragstart',function(e){
   var el=e.target.closest&&e.target.closest(DRAG_SEL);
   if(!el)return;
@@ -2529,15 +2614,18 @@ document.addEventListener('dragend',function(){
 function dragHover(t,x,y){
   var d=dropTarget(t,x,y);
   clearDrop();
-  if(d)d.el.classList.add(d.type==='into'?'drop-ok':(d.after?d.cls[1]:d.cls[0]));
+  if(d)d.el.classList.add(d.type==='into'||d.type==='trash'?'drop-ok':(d.after?d.cls[1]:d.cls[0]));
   return d;
 }
 function dragDrop(t,x,y){
   var d=dropTarget(t,x,y);
   clearDrop();
   if(!d)return false;
-  var id=dragId;dragId=null;
-  if(d.type==='into')moveCardToBook(id,d.id);
+  var id=dragId,group=(dragKind==='card'&&S.sel[id]&&selCount()>1)?selIds():null;
+  if(group&&d.type!=='trash'&&d.type!=='into')return false;
+  dragId=null;
+  if(d.type==='trash')trashCards(group||[id]);
+  else if(d.type==='into'){if(group)moveCardsToBook(group,d.id);else moveCardToBook(id,d.id)}
   else if(d.type==='reorderCard')reorderCard(id,d.id,d.after);
   else reorderBook(id,d.id,d.after);
   return true;
@@ -2612,6 +2700,7 @@ document.addEventListener('touchstart',function(e){
 document.addEventListener('touchmove',function(e){
   if(!tch)return;
   var t=e.touches[0];
+  if(tch.on&&!tch.moved&&(Math.abs(t.clientX-tch.x)>14||Math.abs(t.clientY-tch.y)>14))tch.moved=true;
   if(!tch.on){
     if(Math.abs(t.clientX-tch.x)>10||Math.abs(t.clientY-tch.y)>10){clearTimeout(tch.timer);tch=null}
     return;
@@ -2631,6 +2720,11 @@ document.addEventListener('touchend',function(e){
   if(!tch.on){clearTimeout(tch.timer);tch=null;return}
   if(e.cancelable)e.preventDefault();
   suppressClickUntil=Date.now()+400;
+  if(!tch.moved&&tch.src.kind==='card'){
+    var sid=tch.src.id;
+    touchCleanup();toggleSel(sid);
+    return;
+  }
   var x=tch.lx!=null?tch.lx:tch.x,y=tch.ly!=null?tch.ly:tch.y;
   var under=document.elementFromPoint(x,y);
   if(ghost)ghost.style.display='none';
@@ -2682,7 +2776,11 @@ $('tree').addEventListener('click',function(e){
   var to=e.target.closest('[data-topen]');
   if(to){openBook(to.getAttribute('data-topen'));return}
   var tc=e.target.closest('[data-tcard]');
-  if(tc){openCard(tc.getAttribute('data-tcard'));return}
+  if(tc){
+    var tid=tc.getAttribute('data-tcard');
+    if(selCount()||e.ctrlKey||e.metaKey||e.shiftKey){toggleSel(tid);return}
+    openCard(tid);return;
+  }
   if(e.target.closest('[data-newbook]'))openBookModal(null);
 });
 $('btnBook').addEventListener('click',function(e){
