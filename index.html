@@ -2593,7 +2593,7 @@ function markGroupDrag(){
 var lastTouchAt=0,mlp=null;
 document.addEventListener('mousedown',function(e){
   clearTimeout(mlp);
-  if(e.button!==0||Date.now()-lastTouchAt<1500)return;
+  if(e.button!==0||Date.now()-lastTouchAt<1500||selCount())return;
   var el=e.target.closest&&e.target.closest('li[data-card],[data-tcard]');
   if(!el||e.target.closest('[data-pin],.ins-btn'))return;
   var id=el.getAttribute('data-card')||el.getAttribute('data-tcard'),sx=e.clientX,sy=e.clientY;
