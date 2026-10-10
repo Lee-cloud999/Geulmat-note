@@ -441,6 +441,12 @@ svg{display:block;flex:none}
 .notes>li.selected::after{content:"✓";position:absolute;top:8px;right:8px;width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-size:13px;line-height:22px;text-align:center;pointer-events:none;z-index:2}
 .drag-ghost[data-count]::after{content:attr(data-count);position:absolute;top:-8px;right:-8px;min-width:24px;height:24px;padding:0 6px;border-radius:12px;background:var(--accent);color:#fff;font-size:13px;line-height:24px;text-align:center;box-sizing:border-box}
 .tr-card.selected{background:var(--soft);box-shadow:inset 3px 0 0 var(--accent)}
+.del .del-field{display:grid;gap:6px;margin:12px 0}
+.del .del-field label{font-size:13px;color:var(--ink2)}
+.del .del-field input{height:38px;padding:0 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit}
+.del .del-note{font-size:13px;color:var(--ink2)}
+.del .del-btns{display:flex;justify-content:flex-end;gap:8px;margin-top:6px}
+.del .btn{height:36px;padding:0 14px}
 .selbar{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:60;display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:14px;background:var(--paper);border:1px solid var(--line);box-shadow:0 10px 28px rgba(0,0,0,.2);font-size:13px;color:var(--ink);max-width:calc(100vw - 24px)}
 .selbar[hidden]{display:none}
 .selbar select{height:34px;max-width:160px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);font:inherit;padding:0 8px}
@@ -555,6 +561,7 @@ svg{display:block;flex:none}
           <button class="linkbtn" id="btnLic" type="button">글꼴 · 오픈소스 라이선스</button>
           <button class="linkbtn" id="btnGoCloud" type="button" hidden>로그인하고 동기화</button>
           <button class="linkbtn danger" id="btnLogout" type="button" hidden>로그아웃</button>
+          <button class="linkbtn danger" id="btnDelAcct" type="button" hidden>계정 삭제</button>
         </div>
         <input id="fileIn" type="file" accept="application/json,.json" hidden></div>
       </div>
@@ -664,6 +671,22 @@ svg{display:block;flex:none}
       <ul class="lic-list">
         <li>Firebase JavaScript SDK — Apache License 2.0 · <a href="https://github.com/firebase/firebase-js-sdk" target="_blank" rel="noopener">github.com/firebase/firebase-js-sdk</a></li>
       </ul>
+    </div>
+  </section>
+</div>
+<div class="lic-wrap" id="delWrap" hidden>
+  <div class="lic-scrim" id="delScrim"></div>
+  <section class="lic del" role="dialog" aria-modal="true" aria-labelledby="delHead">
+    <header class="lic-head"><h2 id="delHead">계정 삭제</h2><button class="icon" id="delClose" type="button" aria-label="닫기">✕</button></header>
+    <div class="lic-body">
+      <p><b>계정과 서버에 저장된 모든 글이 지워지고, 되돌릴 수 없어요.</b> 다른 기기에서도 사라져요. 이 기기에 저장된 글도 함께 지워져요.</p>
+      <p>지우기 전에 백업 파일을 받아 두면 나중에 다른 곳에서 불러올 수 있어요.</p>
+      <p><button class="btn" id="delBackup" type="button">백업 받기</button></p>
+      <div class="del-field" id="delPwRow"><label for="delPw">비밀번호 확인</label><input id="delPw" type="password" autocomplete="current-password"></div>
+      <p class="del-note" id="delGoogleNote" hidden>Google 계정으로 가입하셨어요. 삭제를 누르면 Google 확인 창이 한 번 열려요.</p>
+      <div class="del-field"><label for="delType">확인을 위해 <b>삭제</b>라고 입력해 주세요</label><input id="delType" type="text" autocomplete="off"></div>
+      <p class="msg" id="delMsg" role="alert"></p>
+      <div class="del-btns"><button class="btn" id="delCancel" type="button">취소</button><button class="btn danger" id="delGo" type="button" disabled>계정 삭제</button></div>
     </div>
   </section>
 </div>
@@ -1093,6 +1116,7 @@ function syncInfo(){
 function renderAccount(){
   var cloud=S.mode==='cloud'&&!!S.user;
   $('btnLogout').hidden=!cloud;
+  $('btnDelAcct').hidden=!cloud;
   if(cloud){
   }
   var note=S.flash;
@@ -1733,6 +1757,7 @@ function showGate(which){
   $('authForm').hidden=which!=='auth';
   $('gateFail').hidden=which!=='fail';
   if(which==='auth'&&!$('authEmail').value)setTimeout(function(){$('authEmail').focus()},0);
+  if(which==='auth'){try{if(sessionStorage.getItem('geulmat:deleted')){sessionStorage.removeItem('geulmat:deleted');$('authMsg').textContent='계정과 저장된 글을 모두 지웠어요.'}}catch(e){}}
 }
 function authMsg(t,isErr){
   var m=$('authMsg');
@@ -1864,6 +1889,74 @@ function logout(){
   });
 }
 
+/* ---------- delete account ---------- */
+var delKind='';
+function delErrText(e){
+  var c=(e&&e.code)||'';
+  if(c==='auth/wrong-password'||c==='auth/invalid-credential'||c==='auth/invalid-login-credentials')return '비밀번호가 맞지 않아요.';
+  if(c==='auth/too-many-requests')return '시도가 너무 많아요. 잠시 뒤에 다시 해 주세요.';
+  if(c==='auth/network-request-failed')return '인터넷 연결을 확인하고 다시 해 주세요.';
+  if(c==='auth/popup-closed-by-user'||c==='auth/cancelled-popup-request')return 'Google 확인이 끝나지 않았어요. 다시 눌러 주세요.';
+  if(c==='auth/popup-blocked')return '확인 창이 막혔어요. 팝업을 허용하고 다시 눌러 주세요.';
+  if(c==='auth/operation-not-supported-in-this-environment')return '이 환경에서는 Google 확인을 할 수 없어요. 브라우저에서 열어 다시 해 주세요.';
+  if(e&&e.afterWipe)return '글은 모두 지웠지만 계정 삭제가 끝나지 않았어요. 다시 한 번 눌러 주세요.';
+  return '삭제하지 못했어요. 잠시 뒤 다시 해 주세요. 지운 글이 일부일 수 있어요.';
+}
+function delCanGo(){
+  var ok=$('delType').value.trim()==='삭제';
+  if(delKind==='password'&&!$('delPw').value)ok=false;
+  $('delGo').disabled=!ok;
+}
+function openDelAcct(){
+  if(!cloudReady())return;
+  $('movePanel').hidden=true;closeAcct();
+  delKind=backend.accountKind?backend.accountKind():'password';
+  $('delPwRow').hidden=delKind!=='password';
+  $('delGoogleNote').hidden=delKind!=='google';
+  $('delPw').value='';$('delType').value='';$('delMsg').textContent='';
+  $('delGo').disabled=true;$('delCancel').disabled=false;$('delClose').disabled=false;
+  $('delWrap').hidden=false;
+  setTimeout(function(){(delKind==='password'?$('delPw'):$('delType')).focus()},0);
+}
+function closeDelAcct(){if($('delGo').getAttribute('data-busy'))return;$('delWrap').hidden=true}
+function runDelAcct(){
+  if($('delGo').disabled||!cloudReady())return;
+  if(!navigator.onLine){$('delMsg').textContent='인터넷에 연결된 뒤에 해 주세요.';return}
+  var uid=S.user.uid,go=$('delGo');
+  function busy(on){go.setAttribute('data-busy',on?'1':'');go.disabled=on;$('delCancel').disabled=on;$('delClose').disabled=on}
+  busy(true);$('delMsg').textContent='확인하는 중…';
+  var re=Promise.resolve(backend.reauth?backend.reauth(delKind==='password'?$('delPw').value:null):null);
+  re.then(function(){
+    /* from here on, stop any further saving so nothing is written back */
+    $('delMsg').textContent='지우는 중… 창을 닫지 마세요.';
+    timers.forEach(function(t){clearTimeout(t)});timers.clear();dirty.clear();
+    endSession();
+    return backend.deleteAccount(uid);
+  }).then(function(){
+    try{localStorage.removeItem('geulmat:choice')}catch(e){}
+    try{sessionStorage.setItem('geulmat:deleted','1')}catch(e){}
+    var clear=backend.clearLocal?Promise.resolve(backend.clearLocal()).catch(function(){}):Promise.resolve();
+    return clear.then(function(){location.reload()});
+  }).catch(function(e){
+    busy(false);
+    $('delMsg').textContent=delErrText(e);
+    if(!S.user){
+      /* data may be partly gone: reload the session so the screen shows what is left */
+      if(e&&e.afterWipe){S.user={uid:uid,email:''};}
+      else{setTimeout(function(){location.reload()},2500)}
+    }
+  });
+}
+$('btnDelAcct').addEventListener('click',openDelAcct);
+$('delClose').addEventListener('click',closeDelAcct);
+$('delCancel').addEventListener('click',closeDelAcct);
+$('delScrim').addEventListener('click',closeDelAcct);
+$('delBackup').addEventListener('click',function(){exportBackup()});
+$('delType').addEventListener('input',delCanGo);
+$('delPw').addEventListener('input',delCanGo);
+$('delGo').addEventListener('click',runDelAcct);
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!$('delWrap').hidden)closeDelAcct()});
+
 /* ---------- backup file ---------- */
 function backupName(){
   var d=new Date(),p=function(x){return (x<10?'0':'')+x};
@@ -1941,6 +2034,35 @@ function firebaseBackend(cfg){
       return auth.signInWithCredential(fb.auth.GoogleAuthProvider.credential(idToken)).then(function(){});
     },
     signOut:function(){return auth.signOut()},
+    accountKind:function(){
+      var u=auth.currentUser;if(!u)return '';
+      var ids=(u.providerData||[]).map(function(x){return x.providerId});
+      return ids.indexOf('password')>=0?'password':(ids.indexOf('google.com')>=0?'google':'other');
+    },
+    reauth:function(secret){
+      var u=auth.currentUser;if(!u)return Promise.reject(new Error('no user'));
+      if(secret!=null)return u.reauthenticateWithCredential(fb.auth.EmailAuthProvider.credential(u.email,secret)).then(function(){});
+      var prov=new fb.auth.GoogleAuthProvider();
+      return u.reauthenticateWithPopup(prov).then(function(){});
+    },
+    deleteAccount:function(uid){
+      var u=auth.currentUser;if(!u||u.uid!==uid)return Promise.reject(new Error('no user'));
+      var notes=userDoc(uid).collection('notes');
+      function wipe(){
+        return notes.limit(400).get({source:'server'}).then(function(snap){
+          if(snap.empty)return;
+          var b=db.batch();snap.docs.forEach(function(d){b.delete(d.ref)});
+          return b.commit().then(wipe);
+        });
+      }
+      return wipe().then(function(){
+        return userDoc(uid).collection('meta').doc('settings').delete();
+      }).then(function(){
+        return userDoc(uid).delete();
+      }).then(function(){
+        return u.delete().catch(function(e){e.afterWipe=true;throw e});
+      });
+    },
     subscribeNotes:function(uid,cb,err){
       return userDoc(uid).collection('notes').onSnapshot({includeMetadataChanges:true},function(snap){
         cb(snap.docs.map(function(d){var o=d.data()||{};o.id=d.id;return o}),{fromCache:snap.metadata.fromCache,pending:snap.metadata.hasPendingWrites});
