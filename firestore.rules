@@ -1,9 +1,56 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // 로그인한 본인만 자기 노트를 읽고 쓸 수 있어요.
-    match /users/{uid}/{document=**} {
-      allow read, write: if request.auth != null && request.auth.uid == uid;
+
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    function isText(v, max) {
+      return v is string && v.size() <= max;
+    }
+
+    // 노트 한 장이 앱이 쓰는 모양과 크기인지 확인해요.
+    // (앱의 백업 불러오기와 같은 기준: 제목 2000자, 본문 30만 자)
+    function validNote(d) {
+      return d.keys().hasOnly(['title', 'body', 'font', 'pinned', 'createdAt', 'updatedAt', 'deletedAt', 'bookId', 'pos'])
+        && d.keys().hasAll(['title', 'body', 'updatedAt'])
+        && isText(d.title, 2000)
+        && isText(d.body, 300000)
+        && (!('font' in d) || isText(d.font, 40))
+        && (!('pinned' in d) || d.pinned is bool)
+        && (!('createdAt' in d) || d.createdAt is number)
+        && d.updatedAt is number
+        && (!('deletedAt' in d) || d.deletedAt is number)
+        && (!('bookId' in d) || isText(d.bookId, 60))
+        && (!('pos' in d) || d.pos is number);
+    }
+
+    // 설정 문서: 글자 크기, 기본 글꼴, 노트(책) 목록. 노트 목록은 200개까지.
+    function validSettings(d) {
+      return (!('size' in d) || d.size is number)
+        && (!('defaultFont' in d) || isText(d.defaultFont, 40))
+        && (!('seeded' in d) || d.seeded is bool)
+        && (!('books' in d) || (d.books is list && d.books.size() <= 200));
+    }
+
+    match /users/{uid} {
+      // 계정 삭제 때 사용자 문서를 지울 수 있어요.
+      allow delete: if isOwner(uid);
+
+      match /notes/{noteId} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && noteId.matches('[A-Za-z0-9_-]{1,60}')
+          && validNote(request.resource.data);
+      }
+
+      match /meta/{docId} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && docId == 'settings'
+          && validSettings(request.resource.data);
+      }
     }
   }
 }
