@@ -455,6 +455,9 @@ svg{display:block;flex:none}
 .selbar[hidden]{display:none}
 .selbar select{height:34px;max-width:160px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);font:inherit;padding:0 8px}
 .selbar .btn{height:34px;padding:0 12px;white-space:nowrap}
+.selbar #selCount{white-space:nowrap;flex:0 0 auto}
+@media (max-width:480px){.selbar{gap:6px;padding:8px}.selbar select{flex:1 1 60px;min-width:0;max-width:140px}.selbar .btn{padding:0 10px;flex:0 0 auto}}
+@media (max-width:360px){.selbar{flex-wrap:wrap;justify-content:center;width:calc(100vw - 24px)}.selbar select{flex:1 1 100px}}
 .tr-row.drop-ok,.tr-head.drop-ok{background:var(--soft)}
 .tagbtn.drop-ok{background:var(--soft);color:var(--accent)}
 .bb-back.drop-ok{background:var(--soft)}
