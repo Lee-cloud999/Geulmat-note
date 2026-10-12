@@ -554,7 +554,6 @@ svg{display:block;flex:none}
         <div class="acct-pop" id="acctPop" role="menu" aria-label="설정" hidden><div class="pop-head" id="popHead"></div>
         <div class="pop-menu" id="popMenu">
           <button class="linkbtn" id="btnBackup" type="button">백업 받기</button>
-          <button class="linkbtn" id="btnMd" type="button">마크다운으로 내보내기</button>
           <button class="linkbtn" id="btnRestore" type="button">백업 불러오기</button>
           <button class="linkbtn" id="btnTutorial" type="button">튜토리얼 다시 불러오기</button>
           <button class="linkbtn" id="btnInstall" type="button" hidden>앱으로 설치</button>
@@ -594,6 +593,7 @@ svg{display:block;flex:none}
       </div>
       <button class="icon hbtn" id="btnHead" type="button" aria-label="소제목 넣기 또는 빼기" title="소제목">H</button>
       <button class="fontbtn" id="btnFont" type="button" aria-haspopup="dialog" aria-expanded="false"><span class="aa">Aa</span><span id="fontName"></span></button>
+      <button class="icon" id="btnMdOne" type="button" aria-label="마크다운으로 내보내기" title="마크다운으로 내보내기"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M5 19h14"/></svg></button>
       <button class="icon" id="btnBook" type="button" aria-label="노트에 넣기" aria-haspopup="true" title="노트에 넣기"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7a2 2 0 0 1 2-2h4l2 2h6a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/></svg></button>
       <button class="icon" id="btnPin" type="button" aria-label="맨 위에 고정" aria-pressed="false"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16v5M9 3h6l-1 6 3 3v2H7v-2l3-3z"/></svg></button>
       <button class="icon" id="btnDel" type="button" aria-label="노트를 휴지통으로"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg><span class="lbl">정말 휴지통으로</span></button>
@@ -694,6 +694,7 @@ svg{display:block;flex:none}
 <div class="selbar" id="selBar" hidden role="toolbar" aria-label="선택한 글">
   <span id="selCount"></span>
   <select id="selMove" aria-label="노트에 넣기"></select>
+  <button type="button" class="btn" id="selMd">내보내기</button>
   <button type="button" class="btn danger" id="selTrash">휴지통</button>
   <button type="button" class="btn" id="selCancel">취소</button>
 </div>
@@ -778,7 +779,7 @@ function welcome(){
     {id:'welcome-2',title:'노트로 글 묶기',font:'gowun-dodum',pinned:false,bookId:'welcome-book',createdAt:t-4000,updatedAt:t-4000,
      body:'위쪽의 표지가 노트예요. "+ 새 노트 만들기"로 이름, 이모지, 커버 색을 정해 만들 수 있어요. 노트 표지를 누르면 그 노트의 글이 아래에 나타나고, 그 아래에는 노트에 넣지 않은 글이 이어져요. 노트 안의 글 카드와 글 쓰는 화면 바깥 배경에는 노트의 커버 색이 옅게 입혀져요.\n\n## 노트 꾸미기\n선택한 노트 바의 연필 아이콘으로 이름, 이모지, 커버 색을 언제든 바꿀 수 있고, 휴지통 아이콘으로 노트를 지울 수 있어요. 노트를 지워도 안의 글은 남아요. ✕는 노트 선택을 풀어요.\n\n## 글을 노트에 넣는 법\n- 글 카드를 끌어서 노트 표지 위에 놓아요\n- 글을 연 상태에서 위쪽 폴더 버튼을 눌러 노트를 골라요\n- 노트 안의 "+ 새 글"로 쓰면 그 노트에 바로 들어가요\n\n## 카드 옮기기\n카드를 끌어 다른 카드의 앞이나 뒤에 놓으면 순서가 바뀌어요. 노트 안의 카드를 목록 맨 아래 빈 칸에 놓으면 노트에서 빠져요. 고정한 글은 항상 맨 위에 있어서, 고정 글 앞으로 옮기면 그 글도 같이 고정돼요. 폰에서는 카드를 길게 눌러서 끌어요.\n\n## 왼쪽 ☰ 메뉴\n넓은 화면에서는 ☰를 누르면 메뉴가 왼쪽에 고정돼요. 노트 이름을 누르면 안의 글 제목, 내용 일부, 쓴 날짜가 펼쳐지고, 글을 누르면 바로 열려요. 메뉴 안에서도 카드와 노트를 끌어 옮길 수 있어요. 글을 쓰는 중에도 ☰로 열 수 있어요. #시작'},
     {id:'welcome-3',title:'지우기, 글자수, 백업',font:'gowun-dodum',pinned:false,bookId:'welcome-book',createdAt:t-3000,updatedAt:t-3000,
-     body:'## 지운 글은 휴지통으로\n글을 지우면 휴지통으로 가고 30일 동안 보관돼요. 목록 위쪽 태그 줄 오른쪽의 "휴지통"에서 복원하거나 완전히 지울 수 있어요.\n\n## 글자수\n글 위쪽의 숫자를 누르면 공백 제외, 공백 포함 글자수와 마지막 수정 시각을 볼 수 있어요. 글을 드래그해서 고르면 고른 글자수가 보여요.\n\n## 고정\n카드 위에 마우스를 올리면 나타나는 핀을 누르거나, 글 쓰는 화면의 핀 버튼으로 글을 맨 위에 고정할 수 있어요. 고정한 글은 우측 상단에 핀이 표시돼요.\n\n## 백업\n☰ 메뉴 아래의 "백업 받기"로 모든 글과 노트를 파일로 저장할 수 있어요. "백업 불러오기"로 다시 가져와요. "마크다운으로 내보내기"는 글을 노트별 폴더에 .md 파일로 담은 ZIP을 만들어요. Notion, Obsidian 같은 다른 앱으로 옮길 때 쓰세요.\n\n## 어디서나\n로그인하면 PC, 휴대폰, 아이패드에서 같은 글을 이어서 쓸 수 있어요. 로그인 없이 쓰면 이 기기에만 저장되고, 나중에 로그인하면 쓴 글을 계정으로 옮길 수 있어요. 화면 맨 위에서 아래로 당기면 새로고침돼요. #정리'},
+     body:'## 지운 글은 휴지통으로\n글을 지우면 휴지통으로 가고 30일 동안 보관돼요. 목록 위쪽 태그 줄 오른쪽의 "휴지통"에서 복원하거나 완전히 지울 수 있어요.\n\n## 글자수\n글 위쪽의 숫자를 누르면 공백 제외, 공백 포함 글자수와 마지막 수정 시각을 볼 수 있어요. 글을 드래그해서 고르면 고른 글자수가 보여요.\n\n## 고정\n카드 위에 마우스를 올리면 나타나는 핀을 누르거나, 글 쓰는 화면의 핀 버튼으로 글을 맨 위에 고정할 수 있어요. 고정한 글은 우측 상단에 핀이 표시돼요.\n\n## 백업\n☰ 메뉴 아래의 "백업 받기"로 모든 글과 노트를 파일로 저장할 수 있어요. "백업 불러오기"로 다시 가져와요. 글 쓰는 화면 위쪽의 내려받기 버튼이나, 카드를 길게 눌러 고른 뒤 "내보내기"를 누르면 글을 마크다운(.md) 파일로 저장해요. 여러 개를 고르면 ZIP으로 묶여요. Notion, Obsidian 같은 다른 앱으로 옮길 때 쓰세요.\n\n## 어디서나\n로그인하면 PC, 휴대폰, 아이패드에서 같은 글을 이어서 쓸 수 있어요. 로그인 없이 쓰면 이 기기에만 저장되고, 나중에 로그인하면 쓴 글을 계정으로 옮길 수 있어요. 화면 맨 위에서 아래로 당기면 새로고침돼요. #정리'},
     {id:'welcome-4',title:'아침 메모',font:'gowun-batang',pinned:false,createdAt:t-2000,updatedAt:t-2000,
      body:'창문 열고 커피 한 잔.\n오늘은 천천히 걷는 날.\n\n#일기'},
     {id:'welcome-5',title:'이번 주 정리',font:'gowun-dodum',pinned:false,createdAt:t-1000,updatedAt:t-1000,
@@ -2025,30 +2026,27 @@ function cardMarkdown(n){
   var t=(n.title||'').trim(),b=(n.body||'').replace(/\r\n?/g,'\n').replace(/\s+$/,'');
   return (t?'# '+t+'\n\n':'')+b+'\n';
 }
-function exportMarkdown(){
-  var enc=new TextEncoder(),files=[],usedDir={},cnt=0;
-  function addGroup(dirName,list){
-    var cards=list.filter(function(n){return !isEmpty(n)});
-    if(!cards.length)return;
-    var used={};
-    cards.forEach(function(n){
-      var base=safeName(n.title,'제목 없음',60);
-      files.push({name:dirName+'/'+uniqueName(used,base,'.md'),data:enc.encode(cardMarkdown(n)),time:n.updatedAt});
-      cnt++;
-    });
-  }
-  books().forEach(function(b){
-    var dir=uniqueName(usedDir,safeName(b.title,'이름 없는 노트',40),'').replace(/\.$/,'');
-    addGroup(dir,sortCards(liveNotes().filter(function(n){return cardBookId(n)===b.id})));
-  });
-  addGroup(uniqueName(usedDir,'노트에 넣지 않은 글',''),sortCards(liveNotes().filter(function(n){return !cardBookId(n)})));
-  if(!cnt){flash('내보낼 글이 없어요.');return}
-  var blob=makeZip(files),url=URL.createObjectURL(blob),d=new Date(),p=function(x){return (x<10?'0':'')+x};
-  var a=document.createElement('a');
-  a.href=url;a.download='geulmat-markdown-'+d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'.zip';
+function downloadBlob(blob,name){
+  var url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download=name;
   document.body.appendChild(a);a.click();a.remove();
   setTimeout(function(){URL.revokeObjectURL(url)},4000);
-  flash(cnt+'개 글을 마크다운 파일로 내려받았어요.');
+}
+/* 글 하나면 .md 파일 하나, 여러 개면 .md 파일들이 든 ZIP */
+function exportMarkdown(ids){
+  var enc=new TextEncoder(),cards=ids.map(findNote).filter(function(n){return n&&!n.deletedAt&&!isEmpty(n)});
+  if(!cards.length){flash('내보낼 글이 없어요.');return}
+  if(cards.length===1){
+    var n=cards[0];
+    downloadBlob(new Blob([cardMarkdown(n)],{type:'text/markdown;charset=utf-8'}),safeName(n.title,'제목 없음',60)+'.md');
+    flash('마크다운 파일로 내려받았어요.');return;
+  }
+  var used={},files=cards.map(function(n){
+    return {name:uniqueName(used,safeName(n.title,'제목 없음',60),'.md'),data:enc.encode(cardMarkdown(n)),time:n.updatedAt};
+  });
+  var d=new Date(),p=function(x){return (x<10?'0':'')+x};
+  downloadBlob(makeZip(files),'geulmat-markdown-'+d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'.zip');
+  flash(cards.length+'개 글을 마크다운 파일로 내려받았어요.');
 }
 function importBackup(file){
   var rd=new FileReader();
@@ -2639,7 +2637,8 @@ $('btnGoCloud').addEventListener('click',goCloud);
 $('moveYes').addEventListener('click',moveLocal);
 $('moveNo').addEventListener('click',function(){$('movePanel').hidden=true});
 $('btnBackup').addEventListener('click',exportBackup);
-$('btnMd').addEventListener('click',exportMarkdown);
+$('btnMdOne').addEventListener('click',function(){if(S.activeId)exportMarkdown([S.activeId])});
+$('selMd').addEventListener('click',function(){exportMarkdown(selIds())});
 var dragId=null,dragKind=null,dragOpenTimer=0;
 function clearDrop(){
   Array.prototype.forEach.call(document.querySelectorAll('.drop-ok,.drop-before,.drop-after,.drop-above,.drop-below'),function(x){x.classList.remove('drop-ok','drop-before','drop-after','drop-above','drop-below')});
