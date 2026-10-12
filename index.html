@@ -554,6 +554,7 @@ svg{display:block;flex:none}
         <div class="acct-pop" id="acctPop" role="menu" aria-label="설정" hidden><div class="pop-head" id="popHead"></div>
         <div class="pop-menu" id="popMenu">
           <button class="linkbtn" id="btnBackup" type="button">백업 받기</button>
+          <button class="linkbtn" id="btnMd" type="button">마크다운으로 내보내기</button>
           <button class="linkbtn" id="btnRestore" type="button">백업 불러오기</button>
           <button class="linkbtn" id="btnTutorial" type="button">튜토리얼 다시 불러오기</button>
           <button class="linkbtn" id="btnInstall" type="button" hidden>앱으로 설치</button>
@@ -777,7 +778,7 @@ function welcome(){
     {id:'welcome-2',title:'노트로 글 묶기',font:'gowun-dodum',pinned:false,bookId:'welcome-book',createdAt:t-4000,updatedAt:t-4000,
      body:'위쪽의 표지가 노트예요. "+ 새 노트 만들기"로 이름, 이모지, 커버 색을 정해 만들 수 있어요. 노트 표지를 누르면 그 노트의 글이 아래에 나타나고, 그 아래에는 노트에 넣지 않은 글이 이어져요. 노트 안의 글 카드와 글 쓰는 화면 바깥 배경에는 노트의 커버 색이 옅게 입혀져요.\n\n## 노트 꾸미기\n선택한 노트 바의 연필 아이콘으로 이름, 이모지, 커버 색을 언제든 바꿀 수 있고, 휴지통 아이콘으로 노트를 지울 수 있어요. 노트를 지워도 안의 글은 남아요. ✕는 노트 선택을 풀어요.\n\n## 글을 노트에 넣는 법\n- 글 카드를 끌어서 노트 표지 위에 놓아요\n- 글을 연 상태에서 위쪽 폴더 버튼을 눌러 노트를 골라요\n- 노트 안의 "+ 새 글"로 쓰면 그 노트에 바로 들어가요\n\n## 카드 옮기기\n카드를 끌어 다른 카드의 앞이나 뒤에 놓으면 순서가 바뀌어요. 노트 안의 카드를 목록 맨 아래 빈 칸에 놓으면 노트에서 빠져요. 고정한 글은 항상 맨 위에 있어서, 고정 글 앞으로 옮기면 그 글도 같이 고정돼요. 폰에서는 카드를 길게 눌러서 끌어요.\n\n## 왼쪽 ☰ 메뉴\n넓은 화면에서는 ☰를 누르면 메뉴가 왼쪽에 고정돼요. 노트 이름을 누르면 안의 글 제목, 내용 일부, 쓴 날짜가 펼쳐지고, 글을 누르면 바로 열려요. 메뉴 안에서도 카드와 노트를 끌어 옮길 수 있어요. 글을 쓰는 중에도 ☰로 열 수 있어요. #시작'},
     {id:'welcome-3',title:'지우기, 글자수, 백업',font:'gowun-dodum',pinned:false,bookId:'welcome-book',createdAt:t-3000,updatedAt:t-3000,
-     body:'## 지운 글은 휴지통으로\n글을 지우면 휴지통으로 가고 30일 동안 보관돼요. 목록 위쪽 태그 줄 오른쪽의 "휴지통"에서 복원하거나 완전히 지울 수 있어요.\n\n## 글자수\n글 위쪽의 숫자를 누르면 공백 제외, 공백 포함 글자수와 마지막 수정 시각을 볼 수 있어요. 글을 드래그해서 고르면 고른 글자수가 보여요.\n\n## 고정\n카드 위에 마우스를 올리면 나타나는 핀을 누르거나, 글 쓰는 화면의 핀 버튼으로 글을 맨 위에 고정할 수 있어요. 고정한 글은 우측 상단에 핀이 표시돼요.\n\n## 백업\n☰ 메뉴 아래의 "백업 받기"로 모든 글과 노트를 파일로 저장할 수 있어요. "백업 불러오기"로 다시 가져와요.\n\n## 어디서나\n로그인하면 PC, 휴대폰, 아이패드에서 같은 글을 이어서 쓸 수 있어요. 로그인 없이 쓰면 이 기기에만 저장되고, 나중에 로그인하면 쓴 글을 계정으로 옮길 수 있어요. 화면 맨 위에서 아래로 당기면 새로고침돼요. #정리'},
+     body:'## 지운 글은 휴지통으로\n글을 지우면 휴지통으로 가고 30일 동안 보관돼요. 목록 위쪽 태그 줄 오른쪽의 "휴지통"에서 복원하거나 완전히 지울 수 있어요.\n\n## 글자수\n글 위쪽의 숫자를 누르면 공백 제외, 공백 포함 글자수와 마지막 수정 시각을 볼 수 있어요. 글을 드래그해서 고르면 고른 글자수가 보여요.\n\n## 고정\n카드 위에 마우스를 올리면 나타나는 핀을 누르거나, 글 쓰는 화면의 핀 버튼으로 글을 맨 위에 고정할 수 있어요. 고정한 글은 우측 상단에 핀이 표시돼요.\n\n## 백업\n☰ 메뉴 아래의 "백업 받기"로 모든 글과 노트를 파일로 저장할 수 있어요. "백업 불러오기"로 다시 가져와요. "마크다운으로 내보내기"는 글을 노트별 폴더에 .md 파일로 담은 ZIP을 만들어요. Notion, Obsidian 같은 다른 앱으로 옮길 때 쓰세요.\n\n## 어디서나\n로그인하면 PC, 휴대폰, 아이패드에서 같은 글을 이어서 쓸 수 있어요. 로그인 없이 쓰면 이 기기에만 저장되고, 나중에 로그인하면 쓴 글을 계정으로 옮길 수 있어요. 화면 맨 위에서 아래로 당기면 새로고침돼요. #정리'},
     {id:'welcome-4',title:'아침 메모',font:'gowun-batang',pinned:false,createdAt:t-2000,updatedAt:t-2000,
      body:'창문 열고 커피 한 잔.\n오늘은 천천히 걷는 날.\n\n#일기'},
     {id:'welcome-5',title:'이번 주 정리',font:'gowun-dodum',pinned:false,createdAt:t-1000,updatedAt:t-1000,
@@ -1973,6 +1974,82 @@ function exportBackup(){
   setTimeout(function(){URL.revokeObjectURL(url)},4000);
   flash(notes.length+'개 노트를 파일로 내려받았어요.');
 }
+/* ---------- markdown export (zip) ---------- */
+var CRC_T=null;
+function crc32(u8){
+  if(!CRC_T){CRC_T=new Uint32Array(256);for(var n=0;n<256;n++){var c=n;for(var k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;CRC_T[n]=c>>>0}}
+  var c=0xFFFFFFFF;
+  for(var i=0;i<u8.length;i++)c=CRC_T[(c^u8[i])&255]^(c>>>8);
+  return (c^0xFFFFFFFF)>>>0;
+}
+function dosTime(ms){
+  var d=new Date(ms>0?ms:Date.now()),y=Math.max(1980,d.getFullYear());
+  return {t:(d.getHours()<<11)|(d.getMinutes()<<5)|(d.getSeconds()>>1),d:((y-1980)<<9)|((d.getMonth()+1)<<5)|d.getDate()};
+}
+/* files: [{name, data:Uint8Array, time:ms}] -> Blob (저장만 하는 ZIP, 압축 없음) */
+function makeZip(files){
+  var enc=new TextEncoder(),parts=[],cen=[],off=0;
+  files.forEach(function(f){
+    var nm=enc.encode(f.name),crc=crc32(f.data),dt=dosTime(f.time);
+    var h=new DataView(new ArrayBuffer(30));
+    h.setUint32(0,0x04034b50,true);h.setUint16(4,20,true);h.setUint16(6,0x0800,true);h.setUint16(8,0,true);
+    h.setUint16(10,dt.t,true);h.setUint16(12,dt.d,true);h.setUint32(14,crc,true);
+    h.setUint32(18,f.data.length,true);h.setUint32(22,f.data.length,true);h.setUint16(26,nm.length,true);h.setUint16(28,0,true);
+    parts.push(h.buffer,nm,f.data);
+    var c=new DataView(new ArrayBuffer(46));
+    c.setUint32(0,0x02014b50,true);c.setUint16(4,20,true);c.setUint16(6,20,true);c.setUint16(8,0x0800,true);c.setUint16(10,0,true);
+    c.setUint16(12,dt.t,true);c.setUint16(14,dt.d,true);c.setUint32(16,crc,true);
+    c.setUint32(20,f.data.length,true);c.setUint32(24,f.data.length,true);c.setUint16(28,nm.length,true);
+    c.setUint32(42,off,true);
+    cen.push(c.buffer,nm);
+    off+=30+nm.length+f.data.length;
+  });
+  var cenSize=0;cen.forEach(function(x){cenSize+=x.byteLength!==undefined?x.byteLength:x.length});
+  var e=new DataView(new ArrayBuffer(22));
+  e.setUint32(0,0x06054b50,true);e.setUint16(8,files.length,true);e.setUint16(10,files.length,true);
+  e.setUint32(12,cenSize,true);e.setUint32(16,off,true);
+  return new Blob(parts.concat(cen,[e.buffer]),{type:'application/zip'});
+}
+function safeName(t,fallback,max){
+  var s=String(t||'').replace(/[\\\/:*?"<>|\u0000-\u001f]/g,' ').replace(/\s+/g,' ').trim().replace(/^\.+/,'');
+  if(s.length>max)s=s.slice(0,max).trim();
+  return s||fallback;
+}
+function uniqueName(used,base,ext){
+  var n=base+ext,i=2;
+  while(used[n.toLowerCase()]){n=base+' ('+i+')'+ext;i++}
+  used[n.toLowerCase()]=1;
+  return n;
+}
+function cardMarkdown(n){
+  var t=(n.title||'').trim(),b=(n.body||'').replace(/\r\n?/g,'\n').replace(/\s+$/,'');
+  return (t?'# '+t+'\n\n':'')+b+'\n';
+}
+function exportMarkdown(){
+  var enc=new TextEncoder(),files=[],usedDir={},cnt=0;
+  function addGroup(dirName,list){
+    var cards=list.filter(function(n){return !isEmpty(n)});
+    if(!cards.length)return;
+    var used={};
+    cards.forEach(function(n){
+      var base=safeName(n.title,'제목 없음',60);
+      files.push({name:dirName+'/'+uniqueName(used,base,'.md'),data:enc.encode(cardMarkdown(n)),time:n.updatedAt});
+      cnt++;
+    });
+  }
+  books().forEach(function(b){
+    var dir=uniqueName(usedDir,safeName(b.title,'이름 없는 노트',40),'').replace(/\.$/,'');
+    addGroup(dir,sortCards(liveNotes().filter(function(n){return cardBookId(n)===b.id})));
+  });
+  addGroup(uniqueName(usedDir,'노트에 넣지 않은 글',''),sortCards(liveNotes().filter(function(n){return !cardBookId(n)})));
+  if(!cnt){flash('내보낼 글이 없어요.');return}
+  var blob=makeZip(files),url=URL.createObjectURL(blob),d=new Date(),p=function(x){return (x<10?'0':'')+x};
+  var a=document.createElement('a');
+  a.href=url;a.download='geulmat-markdown-'+d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'.zip';
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(function(){URL.revokeObjectURL(url)},4000);
+  flash(cnt+'개 글을 마크다운 파일로 내려받았어요.');
+}
 function importBackup(file){
   var rd=new FileReader();
   rd.onerror=function(){flash('파일을 읽지 못했어요.')};
@@ -2562,6 +2639,7 @@ $('btnGoCloud').addEventListener('click',goCloud);
 $('moveYes').addEventListener('click',moveLocal);
 $('moveNo').addEventListener('click',function(){$('movePanel').hidden=true});
 $('btnBackup').addEventListener('click',exportBackup);
+$('btnMd').addEventListener('click',exportMarkdown);
 var dragId=null,dragKind=null,dragOpenTimer=0;
 function clearDrop(){
   Array.prototype.forEach.call(document.querySelectorAll('.drop-ok,.drop-before,.drop-after,.drop-above,.drop-below'),function(x){x.classList.remove('drop-ok','drop-before','drop-after','drop-above','drop-below')});
