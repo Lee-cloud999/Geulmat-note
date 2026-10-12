@@ -555,7 +555,7 @@ svg{display:block;flex:none}
       <span class="lst-brand">글맛노트<span class="beta" role="button" tabindex="0" title="시험 버전이에요. 눌러서 자세히 보기">BETA</span></span>
       <label class="search">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
-        <input id="q" type="search" placeholder="글 검색" autocomplete="off" aria-label="글 검색">
+        <input id="q" name="note-search" type="search" placeholder="글 검색" autocomplete="off" readonly data-lpignore="true" data-1p-ignore data-form-type="other" aria-label="글 검색">
       </label>
       <div class="acct-wrap">
         <button class="icon" id="btnAcct" type="button" aria-label="계정" aria-haspopup="true" aria-expanded="false"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 20c.8-3.6 3.7-5.6 7-5.6s6.2 2 7 5.6"/></svg></button>
@@ -692,7 +692,7 @@ svg{display:block;flex:none}
       <p><b>계정과 서버에 저장된 모든 글이 지워지고, 되돌릴 수 없어요.</b> 다른 기기에서도 사라져요. 이 기기에 저장된 글도 함께 지워져요.</p>
       <p>지우기 전에 백업 파일을 받아 두면 나중에 다른 곳에서 불러올 수 있어요.</p>
       <p><button class="btn" id="delBackup" type="button">백업 받기</button></p>
-      <div class="del-field" id="delPwRow"><label for="delPw">비밀번호 확인</label><input id="delPw" type="password" autocomplete="current-password"></div>
+      <input id="delUser" type="text" name="username" autocomplete="username" tabindex="-1" aria-hidden="true" readonly style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0"><div class="del-field" id="delPwRow"><label for="delPw">비밀번호 확인</label><input id="delPw" type="password" autocomplete="current-password"></div>
       <p class="del-note" id="delGoogleNote" hidden>Google 계정으로 가입하셨어요. 삭제를 누르면 Google 확인 창이 한 번 열려요.</p>
       <div class="del-field"><label for="delType">확인을 위해 <b>삭제</b>라고 입력해 주세요</label><input id="delType" type="text" autocomplete="off"></div>
       <p class="msg" id="delMsg" role="alert"></p>
@@ -1941,6 +1941,7 @@ function openDelAcct(){
   delKind=backend.accountKind?backend.accountKind():'password';
   $('delPwRow').hidden=delKind!=='password';
   $('delGoogleNote').hidden=delKind!=='google';
+  $('delUser').value=(S.user&&S.user.email)||'';
   $('delPw').value='';$('delType').value='';$('delMsg').textContent='';
   $('delGo').disabled=true;$('delCancel').disabled=false;$('delClose').disabled=false;
   $('delWrap').hidden=false;
@@ -2838,6 +2839,9 @@ $('btnGoCloud').addEventListener('click',goCloud);
 $('moveYes').addEventListener('click',moveLocal);
 $('moveNo').addEventListener('click',function(){$('movePanel').hidden=true});
 $('btnBackup').addEventListener('click',exportBackup);
+/* 브라우저 비밀번호 자동완성이 검색창을 아이디 칸으로 착각해 이메일을 채우는 것을 막기 위해, 처음엔 읽기 전용으로 두고 누르면 풀어요 */
+(function(){var q=$('q');function unlock(){q.removeAttribute('readonly')}
+q.addEventListener('pointerdown',unlock);q.addEventListener('focus',unlock);q.addEventListener('keydown',unlock);q.addEventListener('touchstart',unlock,{passive:true})})();
 function renderSharePop(){
   var h='';
   if(navigator.share)h+='<button type="button" role="menuitem" data-sh="share">앱으로 공유하기</button>';
