@@ -512,6 +512,10 @@ svg{display:block;flex:none}
 .linkbtn:hover{color:var(--ink)}
 .linkbtn:disabled{opacity:.5;cursor:default}
 .foot-note{min-height:1.4em;overflow-wrap:anywhere}
+.cd{max-height:min(90vh,820px)}
+.cd-prev{display:grid;place-items:center;min-height:120px}
+.cd-prev img{display:block;width:100%;max-width:420px;height:auto;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.18)}
+.cd-btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
 .btn.ghost{background:none;color:var(--ink);border:1px solid var(--line)}
 .btn.ghost:hover:not(:disabled){background:var(--soft)}
 .btn.alt{background:var(--soft);color:var(--accent);border:2px solid var(--accent);font-weight:700;font-size:15px;height:48px}
@@ -691,6 +695,20 @@ svg{display:block;flex:none}
       <div class="del-field"><label for="delType">확인을 위해 <b>삭제</b>라고 입력해 주세요</label><input id="delType" type="text" autocomplete="off"></div>
       <p class="msg" id="delMsg" role="alert"></p>
       <div class="del-btns"><button class="btn" id="delCancel" type="button">취소</button><button class="btn danger" id="delGo" type="button" disabled>계정 삭제</button></div>
+    </div>
+  </section>
+</div>
+<div class="lic-wrap" id="cdWrap" hidden>
+  <div class="lic-scrim" id="cdScrim"></div>
+  <section class="lic cd" role="dialog" aria-modal="true" aria-labelledby="cdHead">
+    <header class="lic-head"><h2 id="cdHead">이미지 카드</h2><button class="icon" id="cdClose" type="button" aria-label="닫기">✕</button></header>
+    <div class="lic-body">
+      <div class="cd-prev" id="cdPrev"><p class="foot-note" id="cdWait">카드를 만드는 중이에요…</p></div>
+      <p class="foot-note" id="cdNote"></p>
+      <div class="cd-btns">
+        <button class="btn" id="cdShare" type="button" hidden>공유하기</button>
+        <button class="btn ghost" id="cdSave" type="button" disabled>이미지 저장</button>
+      </div>
     </div>
   </section>
 </div>
@@ -2012,6 +2030,145 @@ function shareNote(id,viaSheet){
     });
   }else fallback();
 }
+/* ---------- image card ---------- */
+var imgBlob=null,imgUrl='';
+function imgLines(ctx,text,maxW){
+  var out=[],cur='',i,ch,sp=-1;
+  for(i=0;i<text.length;i++){
+    ch=text.charAt(i);
+    if(ctx.measureText(cur+ch).width>maxW&&cur){
+      if(ch===' '){out.push(cur);cur='';sp=-1;continue}
+      if(sp>0&&sp<cur.length){out.push(cur.slice(0,sp));cur=cur.slice(sp).replace(/^ +/,'')+ch}
+      else{out.push(cur);cur=ch}
+      sp=-1;
+    }else{
+      if(ch===' '&&cur)sp=cur.length;
+      cur+=ch;
+    }
+  }
+  if(cur)out.push(cur);
+  return out;
+}
+function imgRender(n){
+  var W=1080,M=56,P=88,MAXH=1920,MINH=1080,f=fontById(n.font),sc=f.scale||1;
+  var book=bookById(n.bookId),c1=book?book.c1:'#2B6A63',c2=book?book.c2:'#77C7BD';
+  var cv=document.createElement('canvas'),ctx=cv.getContext('2d');
+  var innerW=W-2*M-2*P,titleSz=Math.round(58*sc),bodySz=Math.round(38*sc),headSz=Math.round(44*sc);
+  var brand='"Gowun Batang","Batang",serif';
+  var title=(n.title||'').trim(),body=(n.body||'').replace(/\r\n?/g,'\n').replace(/\s+$/,'');
+  /* 줄 배치 */
+  var items=[],i;
+  ctx.font='700 '+titleSz+'px '+f.stack;
+  if(title)imgLines(ctx,title,innerW).forEach(function(l){items.push({t:l,k:'title',h:Math.round(titleSz*1.4)})});
+  if(title)items.push({t:'',k:'gap',h:Math.round(bodySz*0.9)});
+  body.split('\n').forEach(function(raw){
+    var m=/^#{1,3}\s+(.*)$/.exec(raw),isH=!!m,txt=isH?m[1]:raw;
+    if(!txt.trim()){items.push({t:'',k:'gap',h:Math.round(bodySz*0.7)});return}
+    ctx.font=(isH?'700 '+headSz:'400 '+bodySz)+'px '+f.stack;
+    imgLines(ctx,txt,innerW).forEach(function(l){items.push({t:l,k:isH?'head':'body',h:Math.round((isH?headSz:bodySz)*1.75)})});
+  });
+  var footH=120,top=M+P,avail=MAXH-2*M-2*P-footH,used=0,keep=[],cut=false;
+  for(i=0;i<items.length;i++){
+    if(used+items[i].h>avail){cut=true;break}
+    keep.push(items[i]);used+=items[i].h;
+  }
+  if(cut)while(keep.length>1&&keep[keep.length-1].k!=='body'){used-=keep.pop().h}
+  while(keep.length&&keep[keep.length-1].k==='gap'){used-=keep.pop().h}
+  if(cut&&keep.length){
+    var last=keep[keep.length-1];
+    ctx.font=(last.k==='title'?'700 '+titleSz:last.k==='head'?'700 '+headSz:'400 '+bodySz)+'px '+f.stack;
+    var t=last.t;while(t&&ctx.measureText(t+'…').width>innerW)t=t.slice(0,-1);
+    last.t=t.replace(/\s+$/,'')+'…';
+  }
+  var H=Math.max(MINH,Math.min(MAXH,top+used+P+footH+M));
+  cv.width=W;cv.height=H;
+  /* 바깥 배경 */
+  var g=ctx.createLinearGradient(0,0,W,H);g.addColorStop(0,c1);g.addColorStop(1,c2);
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+  /* 종이 */
+  var pw=W-2*M,ph=H-2*M,r=36;
+  ctx.save();ctx.shadowColor='rgba(0,0,0,.22)';ctx.shadowBlur=40;ctx.shadowOffsetY=14;
+  ctx.fillStyle='#FCFDFC';
+  ctx.beginPath();
+  ctx.moveTo(M+r,M);ctx.arcTo(M+pw,M,M+pw,M+ph,r);ctx.arcTo(M+pw,M+ph,M,M+ph,r);ctx.arcTo(M,M+ph,M,M,r);ctx.arcTo(M,M,M+pw,M,r);
+  ctx.closePath();ctx.fill();ctx.restore();
+  /* 글 */
+  ctx.textBaseline='alphabetic';
+  var y=top;
+  keep.forEach(function(it){
+    var sz=it.k==='title'?titleSz:it.k==='head'?headSz:bodySz;
+    if(it.t){
+      ctx.font=(it.k==='body'?'400 ':'700 ')+sz+'px '+f.stack;
+      ctx.fillStyle=it.k==='head'?'#2B6A63':'#1B2523';
+      ctx.fillText(it.t,M+P,y+Math.round(it.h*0.72));
+    }
+    y+=it.h;
+  });
+  /* 아래 표시 */
+  var fy=H-M-Math.round(footH*0.45);
+  ctx.strokeStyle='#D9E1DD';ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(M+P,fy-44);ctx.lineTo(W-M-P,fy-44);ctx.stroke();
+  ctx.font='700 36px '+brand;ctx.fillStyle='#2B6A63';ctx.textAlign='left';
+  ctx.fillText('글맛노트',M+P,fy+4);
+  ctx.font='400 26px '+f.stack;ctx.fillStyle='#5B6865';ctx.textAlign='right';
+  var dd=new Date(n.updatedAt||Date.now());ctx.fillText(dd.getFullYear()+'. '+(dd.getMonth()+1)+'. '+dd.getDate()+'.',W-M-P,fy+2);
+  ctx.textAlign='left';
+  cv._cut=cut;
+  return cv;
+}
+function imgClose(){
+  $('cdWrap').hidden=true;
+  if(imgUrl){URL.revokeObjectURL(imgUrl);imgUrl=''}
+  imgBlob=null;$('cdPrev').innerHTML='';
+}
+function imgOpen(id){
+  var n=findNote(id);
+  if(!n||n.deletedAt||isEmpty(n)){flash('공유할 글이 없어요.');return}
+  var f=fontById(n.font);
+  $('cdPrev').innerHTML='<p class="foot-note" id="cdWait">카드를 만드는 중이에요…</p>';
+  $('cdNote').textContent='';$('cdSave').disabled=true;$('cdShare').hidden=true;
+  $('cdWrap').hidden=false;
+  var sample=((n.title||'')+(n.body||'')+'글맛노트0123456789. ').slice(0,3000);
+  var fam=f.stack.split(',')[0].replace(/"/g,'').trim(),loads=[];
+  try{
+    if(document.fonts&&document.fonts.load){
+      loads.push(document.fonts.load('400 38px "'+fam+'"',sample),document.fonts.load('700 38px "'+fam+'"',sample),document.fonts.load('700 36px "Gowun Batang"','글맛노트'));
+    }
+  }catch(e){}
+  var timeout=new Promise(function(ok){setTimeout(ok,2500)});
+  Promise.race([Promise.all(loads.map(function(p){return p.catch(function(){})})),timeout]).then(function(){
+    if($('cdWrap').hidden)return;
+    var cv;
+    try{cv=imgRender(n)}catch(e){console.error(e);$('cdPrev').innerHTML='<p class="foot-note">카드를 만들지 못했어요.</p>';return}
+    cv.toBlob(function(b){
+      if($('cdWrap').hidden)return;
+      if(!b){$('cdPrev').innerHTML='<p class="foot-note">카드를 만들지 못했어요.</p>';return}
+      imgBlob=b;imgUrl=URL.createObjectURL(b);
+      var img=new Image();img.alt='글 이미지 카드 미리보기';img.src=imgUrl;
+      $('cdPrev').innerHTML='';$('cdPrev').appendChild(img);
+      var file=null;
+      try{file=new File([b],safeName(n.title,'글맛노트',40)+'.png',{type:'image/png'})}catch(e){}
+      var canShare=!!(file&&navigator.canShare&&navigator.share&&navigator.canShare({files:[file]}));
+      $('cdShare').hidden=!canShare;$('cdShare')._file=file;
+      $('cdSave').disabled=false;$('cdSave')._name=safeName(n.title,'글맛노트',40)+'.png';
+      $('cdNote').textContent=cv._cut?'글이 길어서 앞부분만 담았어요.':'';
+    },'image/png');
+  });
+}
+$('cdClose').addEventListener('click',imgClose);
+$('cdScrim').addEventListener('click',imgClose);
+$('cdSave').addEventListener('click',function(){
+  if(!imgBlob)return;
+  downloadBlob(imgBlob,$('cdSave')._name||'글맛노트.png');flash('이미지를 저장했어요.');
+});
+$('cdShare').addEventListener('click',function(){
+  var file=$('cdShare')._file;if(!file)return;
+  navigator.share({files:[file]}).catch(function(e){
+    if(e&&e.name==='AbortError')return;
+    flash('공유하지 못했어요. 이미지 저장을 눌러 보세요.');
+  });
+});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!$('cdWrap').hidden)imgClose()});
 /* ---------- markdown export (zip) ---------- */
 var CRC_T=null;
 function crc32(u8){
@@ -2677,19 +2834,30 @@ $('btnBackup').addEventListener('click',exportBackup);
 function renderSharePop(){
   var h='';
   if(navigator.share)h+='<button type="button" role="menuitem" data-sh="share">앱으로 공유하기</button>';
+  h+='<button type="button" role="menuitem" data-sh="card">이미지 카드로 공유</button>';
   h+='<button type="button" role="menuitem" data-sh="copy">글 복사</button><button type="button" role="menuitem" data-sh="md">마크다운 파일로 저장</button>';
   $('sharePop').innerHTML=h;
 }
 $('btnShare').addEventListener('click',function(e){
   e.stopPropagation();
   $('bookPop').hidden=true;
-  if($('sharePop').hidden){if(!S.activeId)return;renderSharePop();$('sharePop').hidden=false}else $('sharePop').hidden=true;
+  if($('sharePop').hidden){if(!S.activeId)return;renderSharePop();$('sharePop').hidden=false;placeSharePop()}else $('sharePop').hidden=true;
 });
+/* 공유 버튼 바로 아래, 버튼의 오른쪽 끝에 맞춰 띄움 (화면 밖으로는 안 나가게) */
+function placeSharePop(){
+  var pop=$('sharePop'),btn=$('btnShare'),par=pop.offsetParent||document.body;
+  var pr=par.getBoundingClientRect(),br=btn.getBoundingClientRect(),w=pop.offsetWidth;
+  var right=br.right-pr.left,left=right-w,min=8,max=pr.width-w-8;
+  left=Math.max(min,Math.min(left,max));
+  pop.style.left=left+'px';pop.style.right='auto';pop.style.top=(br.bottom-pr.top+6)+'px';
+}
+window.addEventListener('resize',function(){if(!$('sharePop').hidden)placeSharePop()});
 $('sharePop').addEventListener('click',function(e){
   e.stopPropagation();
   var b=e.target.closest('[data-sh]');if(!b||!S.activeId)return;
   var k=b.getAttribute('data-sh');$('sharePop').hidden=true;
   if(k==='share')shareNote(S.activeId,true);
+  else if(k==='card')imgOpen(S.activeId);
   else if(k==='copy')shareNote(S.activeId,false);
   else exportMarkdown([S.activeId]);
 });
